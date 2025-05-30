@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Préférences - BlediTrip</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='font-awesome-4.7.0/css/font-awesome.min.css') }}">
+  <style>
+    /* Variables CSS */
+    :root {
+      --primary-color: #399345;
+      --primary-dark: #27682c;
+      --secondary-color: #399345;
+      --accent-color: #ff2a1f;
+      --text-dark: #3f3f3f;
+      --text-medium: #555;
+      --text-light: #666;
+      --background: #f5f5f5;
+      --white: #ffffff;
+      --slider-fill: var(--secondary-color);
+      --slider-track: #ddd;
+    }
+
+    /* Base Styles */
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--background);
+      margin: 0;
+      padding-top: 1rem;
+      padding-left: 100px;
+      padding-right: 100px;
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(-20px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    /* Header Styles */
+    .page-header {
+      text-align: center;
+      margin-bottom: 2rem;
+      animation: slideIn 0.6s ease-out;
+    }
+
+    .page-header h1 {
+      font-weight: 800;
+      color: var(--primary-color);
+      margin-bottom: 10px;
+      font-size: 2rem;
+    }
+
+    .page-header p {
+      font-size: 1rem;
+      color: var(--text-medium);
+    }
+
+    /* Form Container */
+    form {
+      max-width: 1000px;
+      margin: auto;
+    }
+
+    .main-container {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    /* Section Boxes */
+    .section-box {
+      flex: 1;
+      background: var(--white);
+      border: 2px solid transparent;
+      padding: 1.5rem;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      height: 300px;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .section-box:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .section-box h3 {
+      text-align: center;
+      color: var(--text-dark);
+      margin-bottom: 1rem;
+      margin-top: -4px;
+      position: relative;
+      padding-bottom: 8px;
+    }
+
+    /* Slider Styles */
+    .slider-list {
+      overflow-y: auto;
+      color: var(--text-dark);
+      padding-right: 0.4rem;
+    }
+
+    .slider-item {
+      margin-bottom: 1rem;
+      animation: fadeIn 0.5s ease-out;
+      animation-fill-mode: both;
+    }
+
+    .slider-item:nth-child(1) { animation-delay: 0.1s; }
+    .slider-item:nth-child(2) { animation-delay: 0.2s; }
+    .slider-item:nth-child(3) { animation-delay: 0.3s; }
+    .slider-item:nth-child(4) { animation-delay: 0.4s; }
+    .slider-item:nth-child(5) { animation-delay: 0.5s; }
+    .slider-item:nth-child(6) { animation-delay: 0.6s; }
+    .slider-item:nth-child(7) { animation-delay: 0.7s; }
+    .slider-item:nth-child(8) { animation-delay: 0.8s; }
+    .slider-item:nth-child(9) { animation-delay: 0.9s; }
+
+    .slider-item label {
+      display: flex;
+      align-items: center;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+
+    .slider-item label i {
+      margin-right: 10px;
+      color: var(--accent-color);
+      min-width: 24px;
+      text-align: center;
+    }
+
+    .slider-item input[type="range"] {
+      width: 100%;
+      appearance: none;
+      height: 6px;
+      border-radius: 5px;
+      background: linear-gradient(to right, var(--slider-fill) 0%, var(--slider-fill) 0%, var(--slider-track) 0%, var(--slider-track) 100%);
+      outline: none;
+      transition: background 0.3s ease;
+    }
+
+    .slider-item input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--primary-color);
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .slider-item input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .slider-item .level {
+      text-align: right;
+      font-size: 0.85em;
+      color: var(--text-light);
+      margin-top: 0.3rem;
+    }
+
+    /* Submit Button */
+    .submit-btn {
+      display: block;
+      width: 100%;
+      padding: 0.6rem;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 2rem auto 0;
+      max-width: 200px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .submit-btn:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .submit-btn:active {
+      transform: translateY(0);
+    }
+
+    .submit-btn::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 5px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.5);
+      opacity: 0;
+      border-radius: 100%;
+      transform: scale(1, 1) translate(-50%);
+      transform-origin: 50% 50%;
+    }
+
+    .submit-btn:focus:not(:active)::after {
+      animation: ripple 1s ease-out;
+    }
+
+    @keyframes ripple {
+      0% {
+        transform: scale(0, 0);
+        opacity: 0.5;
+      }
+      100% {
+        transform: scale(20, 20);
+        opacity: 0;
+      }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 900px) {
+      body {
+        padding-left: 30px;
+        padding-right: 30px;
+      }
+      
+      .main-container {
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+      
+      .section-box {
+        height: auto;
+        max-height: 300px;
+      }
+    }
+    /* Style des messages flash */
+    .flash-messages {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+    }
+
+    .flash-error {
+      background-color: #ffebee;
+      color: #c62828;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-left: 4px solid #c62828;
+      border-radius: 4px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .flash-success {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-left: 4px solid #2e7d32;
+      border-radius: 4px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-messages">
+      {% for category, message in messages %}
+          <div class="flash-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}   
+
+    <div class="page-header">
+      <h1>Vos préférences</h1>
+      <p>Ajustez les curseurs pour chaque catégorie afin d’indiquer votre niveau d’intérêt.</p>
+    </div>
+
+    <form method="POST" action="{{ url_for('preferences') }}">
+      <div class="main-container">
+
+        <!-- Catégories -->
+        <div class="section-box">
+          <h3> Catégories</h3>
+          <div class="slider-list">
+            {% for name in [
+              'Naturel', 'Historique', 'Culturels', 
+              'shopping', 'Loisir et Divertissement', 'Religieux',
+              'Architectural, artificiel et patrimonial bâti', 
+              'Bien-être / Thérapeutique', 'artistiques'
+            ] %}
+              {% for name in all_categories %}
+              <div class="slider-item">
+                <label><i class="fa fa-tag"></i> {{ name }}</label>
+                <input type="range" name="{{ name | lower | replace(' ', '_') }}" min="0" max="1" value="0">
+              </div>
+              {% endfor %}
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Sous-catégories -->
+        <div class="section-box">
+          <h3>Sous-catégories</h3>
+          <div class="slider-list">
+            {% set subcats = [
+              'Tour', 'Eglise', 'Site Archeologique', 'Monument', 'parc national',
+              'foret', 'Montagne', 'Plage', 'Centre commercial', 'Spa', 'Zoo',
+              'Parc d\'attraction', 'Pont', 'musée', 'cinéma', 'Galerie d\'art',
+              'theatre', 'Parc aquatique', 'Parc urbain', 'Village', 'Cascades',
+              'grotte', 'Lac', 'Palais', 'Port', 'Île', 'parc naturel', 'péninsule',
+              'Barrage', 'phare', 'ville', 'Oasis', 'Activités', 'gorges',
+              'place urbaine', 'rivière', 'Dunes', 'Tunnel', 'château', 'Jardin',
+              'Piscine', 'Stade', 'Marais', 'Fort'
+            ] %}
+            {% for sub in subcats %}
+              {% for sub in all_subcategories %}
+              <div class="slider-item">
+                <label><i class="fa fa-map-pin"></i> {{ sub }}</label>
+                <input type="range" name="{{ sub | lower | replace(' ', '_') | replace("'", '') }}" min="0" max="1" value="0">
+              </div>
+              {% endfor %}
+            {% endfor %}
+          </div>
+        </div>
+
+      </div>
+
+      <button type="submit" class="submit-btn"> Envoyer</button>
+
+    </form>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const sliders = document.querySelectorAll('input[type="range"]');
+
+        sliders.forEach(slider => {
+          const updateFill = () => {
+            const val = (slider.value - slider.min) / (slider.max - slider.min) * 100;
+            slider.style.background = `linear-gradient(to right, var(--slider-fill) 0%, var(--slider-fill) ${val}%, var(--slider-track) ${val}%, var(--slider-track) 100%)`;
+          };
+
+          slider.addEventListener('input', updateFill);
+          updateFill(); // Initialiser la couleur
+        });
+
+        // Ajout d'un effet de pulse au chargement pour le bouton submit
+        const submitBtn = document.querySelector('.submit-btn');
+        setTimeout(() => {
+          submitBtn.style.animation = 'pulse 2s infinite';
+        }, 1500);
+      });
+    </script>
+
+</body>
+</html>

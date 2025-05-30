@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='profil.css') }}">
+    <title>Profil - {{ user._id }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='font-awesome-4.7.0/css/font-awesome.min.css') }}">
+</head>
+<body>
+<div class="profile-wrapper">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <h2><i class="fa fa-user" aria-hidden="true"></i> User Profile</h2>
+        <ul>
+            <li class="active"><i class="fa fa-user" aria-hidden="true"></i> User Info</li>
+            <li><a href="{{ url_for('accueil') }}"><i class="fa fa-chevron-circle-left" aria-hidden="true"></i> Accueil</a></li>
+        </ul>
+        <a href="{{ url_for('home') }}" class="logout"><i class="fa fa-sign-out" aria-hidden="true"></i>Déconnexion</a>
+    </aside>
+
+    <!-- Main content -->
+    <main class="profile-content">
+        <div class="profile-header">
+            <img src="{{ url_for('static', filename='images/image (2).png') }}" class="profile-avatar">
+            <div class="profile-info">
+                <h3>{{ user.prenom }} {{ user.nom }}</h3>
+                <p>{{ commune }}, {{ wilaya }}</p>
+            </div>
+        </div>
+        
+        <form id="profile-form" method="POST" action="{{ url_for('update_profile') }}">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Nom</label>
+                    <input type="text" name="nom" value="{{ user.nom }}" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Prénom</label>
+                    <input type="text" name="prenom" value="{{ user.prenom }}" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Pseudo</label>
+                    <input type="text" name="pseudo" value="{{ user._id }}" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Âge</label>
+                    <input type="number" name="age" value="{{ user.age }}" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Sexe</label>
+                    <input type="text" name="sexe" value="{{ user.sexe }}" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Nombre de lieux visités</label>
+                    <input type="text" value="{{ user.visited_places|length }}" disabled>
+                </div>
+            </div>
+            <button type="submit" id="edit-btn" class="edit-btn"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Modifier</button>
+        </form>
+    </main>
+</div>
+        <script src="{{ url_for('static', filename='profil.js') }}">
+        </script>
+</body>
+</html>

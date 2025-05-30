@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8"/>
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='projet.css') }}"/>
+        <link rel="stylesheet" href="{{ url_for('static', filename='font-awesome-4.7.0/css/font-awesome.min.css') }}">
+        <title>Discover Algeria</title>
+    </head>
+
+    <body>
+        <header>
+            <a href="#home" class="logo">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo BlediTrip" class="logo-img" style="height: 40px; vertical-align: middle;">
+                <span style="margin-left: 8px;">Bledi<span class="trip">Trip</span></span>
+            </a>
+                <ul class="nav">
+                    <li><a href="#home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
+                    <li><a href="#about"> À propos</a></li>
+                    <li><a href="#features">Fonctionnalités</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+                <ul class="compte">
+                    <li><span class="login"><a href="{{ url_for('compte') }}#login">Se connecter</a></span></li>
+                    <li><span class="singin"><a href="{{ url_for('compte') }}#register">S'inscrire</a></span></li>
+                    
+                </ul>
+                <div class="menu-toggle" id="menu-toggle"></div>
+
+        </header>
+        <div class="banner" id="home">
+            <div class="content bejaia active">
+                <h4>
+                    <span>Béjaïa</span>
+                </h4>
+                <p>
+                    Une belle ville côtière du nord de l’Algérie, connue pour ses paysages naturels époustouflants
+                     où les montagnes rencontrent la mer. Avec sa riche histoire et ses paysages à couper le souffle
+                      comme le Cap Carbon et ses plages aux eaux cristallines, Béjaïa est une destination idéale 
+                      pour les amoureux de la nature et les voyageurs en quête de détente.
+                </p>
+                <div class="button">
+                    <a href="{{ url_for('compte') }}">Voir plus</a>
+                </div>
+            </div>
+            <div class="content oran">
+                <h4>
+                    <span>Oran</span>
+                </h4>
+                <p>
+                    Une ville côtière dynamique de l’ouest de l’Algérie, connue pour son ambiance animée et sa richesse culturelle.
+                    Avec ses plages dorées comme Madagh, l’impressionnante Forteresse de Santa Cruz et ses places vibrantes,
+                    Oran est idéale pour les voyageurs en quête de détente et de charme local.
+                </p>
+                <div class="button">
+                    <a href="{{ url_for('compte') }}">Voir plus</a>
+                </div>
+            </div>
+            <div class="content constantine">
+                <h4>
+                    <span>Constantine</span>
+                </h4>
+                <p>
+                    Perchée au sommet de falaises vertigineuses, cette ville emblématique est souvent surnommée « la ville des ponts suspendus ».
+                    Avec ses gorges spectaculaires, la magnifique mosquée Émir Abdelkader et une richesse de sites historiques,
+                    Constantine offre une expérience de voyage véritablement unique.
+                </p>
+                <div class="button">
+                    <a href="{{ url_for('compte') }}">Voir plus</a>
+                </div>
+            </div>
+            <div class="content alger">
+                <h4>
+                    <span>Alger</span>
+                </h4>
+                <p>
+                    Capitale vibrante située sur la côte méditerranéenne, Alger allie l'énergie moderne à des racines historiques profondes.
+                    Réputée pour sa Casbah classée au patrimoine mondial de l’UNESCO, son Jardin d’Essai luxuriant,
+                    et la majestueuse Basilique Notre-Dame d’Afrique, elle offre une expérience culturelle riche
+                    accompagnée d’un front de mer animé.
+                </p>
+                <div class="button">
+                    <a href="{{ url_for('compte') }}">Voir plus</a>
+                </div>
+            </div>
+            <div class="content tamanrasset">
+                <h4>
+                    <span>Tamanrasset</span>
+                </h4>
+                <p>
+                    Située au cœur du Sahara algérien, Tamanrasset est une porte d’entrée vers les majestueuses 
+                    montagnes du Hoggar et un centre de la culture touarègue.
+                    Avec ses paysages désertiques surréalistes et ses couchers de soleil inoubliables, c’est une
+                     destination incontournable pour les aventuriers et les passionnés de culture.
+                </p>
+                <div class="button">
+                    <a href="{{ url_for('compte') }}">Voir plus</a>
+                </div>
+            </div>
+            <div class="content Tipaza">
+                <h4>
+                    <span>Tipaza</span>
+                </h4>
+                <p>
+                    Située sur les rives de la Méditerranée, cette paisible ville est célèbre pour ses anciennes 
+                    ruines romaines en bord de mer.
+                    Avec ses plages aux eaux cristallines et ses merveilles archéologiques, Tipaza est idéale pour
+                    ceux qui recherchent à la fois beauté et histoire.
+                </p>
+                <div class="button">
+                    <a href="{{ url_for('compte') }}">Voir plus</a>
+                </div>
+            </div>
+            
+           <div class="carousel-box">
+                <div class="carousel">
+                    <div class="carousel-item"
+                    onclick="changeBg('c-bejaia-2363555_1920.jpg','bejaia');">
+                        <img src="{{ url_for('static', filename='images/co-bejaia-2363555_1920.jpg') }}" alt="">
+                    </div>
+                    <div class="carousel-item" 
+                    onclick="changeBg('islam-fersaoui-ZBSMnivFVrY-unsplash.jpg','oran');">
+                        <img src="{{ url_for('static', filename='images/copy-islam-fersaoui-ZBSMnivFVrY-unsplash.jpg') }}" alt="">
+                    </div>
+                    <div class="carousel-item"
+                    onclick="changeBg('pexels-nadas-18314356.jpg','constantine');">
+                        <img src="{{ url_for('static', filename='images/copy-pexels-nadas-18314356.jpg') }}" alt="">
+                    </div>
+                    <div class="carousel-item"
+                    onclick="changeBg('nasro-azaizia-mNca9bTgGmw-unsplash.jpg','alger');">
+                        <img src="{{ url_for('static', filename='images/copy-nasro-azaizia-mNca9bTgGmw-unsplash.jpg') }}" alt="">
+                    </div>
+                    <div class="carousel-item"
+                    onclick="changeBg('pexels-noureddine-belfethi-1160352-10217438.jpg','tamanrasset');">
+                        <img src="{{ url_for('static', filename='images/copy-pexels-noureddine-belfethi-1160352-10217438.jpg') }}" alt="">
+                    </div>
+                    <div class="carousel-item"
+                    onclick="changeBg('rab-rabah-qI94ozTxOFc-unsplash.jpg','Tipaza');">
+                        <img src="{{ url_for('static', filename='images/copy-rab-rabah-qI94ozTxOFc-unsplash.jpg') }}" alt="">
+                    </div>
+                </div>
+            </div>
+            <ul class="sci">
+                <li><a href="#"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+                <li><a href="#"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+                <li><a href="#"><i class="fa fa-github" aria-hidden="true"></i></a></li>
+            </ul>
+        </div>
+        <!-- Section About -->
+        <section id="about" class="section scroll-section">
+            <div class="containerabout">
+                <h2 class="about_title">À propos de BlediTrip</h2>
+                <p class="about description">
+                    BlediTrip est une plateforme qui permet aux voyageurs de découvrir la beauté et la diversité de
+                     l’Algérie à travers une expérience numérique moderne et immersive. Elle facilite l’exploration 
+                     du pays en proposant des outils personnalisés pour chaque aventure.
+                </p>
+                <div class="button">
+                    <a href="{{ url_for('compte') }}">Voir plus</a>
+                </div>
+                <div class="image-container">
+                    <div class="image-box">
+                        <img src="{{ url_for('static', filename='images/Wild beach.jpg') }}" alt="Image 1" class="image_one">
+                    </div>
+                    <div class="image-box">
+                        <img src="{{ url_for('static', filename='images/Annaba - Algeria 🇩🇿.jpg') }}" alt="Image 2" class="image_two">
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Section Features -->
+        <section id="features" class="section scroll-section">
+            <div class="containerfeatures">
+            <h2 class="features-title">Pourquoi choisir BlediTrip ?</h2>
+            <div class="features-boxes">
+                
+                <!-- Box 1 -->
+                <div class="feature-box">
+                <div class="icon-circle">
+                    <i class="fa fa-map-marker" aria-hidden="true"></i>
+                </div>
+                <h3>Recommandations</h3>
+                <p>
+                    Des suggestions sur mesure basées sur vos préférences, vos intérêts et votre style de voyage.
+                </p>
+                <a href="{{ url_for('compte') }}" class="feature-btn">Explorer</a>
+                </div>
+        
+                <!-- Box 2 -->
+                <div class="feature-box">
+                <div class="icon-circle">
+                    <i class="fa fa-road" aria-hidden="true"></i>
+                </div>
+                <h3>Itinéraire optimisé</h3>
+                <p>
+                    Générez des plans de voyage intelligents qui économisent du temps, réduisent le stress et 
+                    correspondent à vos priorités.
+                </p>
+                <a href="{{ url_for('compte') }}" class="feature-btn">Planifier maintenant</a>
+                </div>
+        
+                <!-- Box 3 -->
+                <div class="feature-box animate__animated animate__fadeInUp">
+                <div class="icon-circle">
+                    <i class="fa fa-heart" aria-hidden="true"></i>
+                </div>
+                <h3>Favoris & Historique</h3>
+                <p>
+                    Gardez une trace des endroits que vous aimez et revisitez-les à tout moment, où que vous 
+                    soyez, sans effort.
+                </p>
+                <a href="{{ url_for('compte') }}" class="feature-btn">Voir les favoris</a>
+                </div>
+        
+            </div>
+            </div>
+        </section>
+  
+
+        <!-- Section Contact -->
+        <footer class="footer-contact" id="contact">
+            <div class="footer-container">
+                <div class="footer-about">
+                    <h2><span class="highlight">Bledi</span>Trip</h2>
+                    <p>
+                        Si vous avez des questions, des suggestions ou besoin d’assistance, n’hésitez pas à nous contacter.
+                        Nous sommes là pour vous aider à profiter pleinement de votre expérience de voyage en Algérie.
+                    </p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+                        <a href="#"><i class="fa fa-whatsapp" aria-hidden="true"></i></a>
+                        <a href="#"><i class="fa fa-instagram" aria-hidden="true"></i></a>
+                        <a href="#"><i class="fa fa-linkedin" aria-hidden="true"></i></a>
+                    </div>
+                </div>
+
+                <div class="footer-contact-info">
+                    <h3>Contact Us</h3>
+                    <p><i class="fa fa-map-marker" aria-hidden="true"></i> 123 street, Algiers, Algeria</p>
+                    <p><i class="fa fa-envelope" aria-hidden="true"></i> contact@bledi-trip.dz</p>
+                    <p><i class="fa fa-phone" aria-hidden="true"></i> +213-1234-5678</p>
+                </div>
+            </div>
+            <hr class="footer-line">
+        </footer>
+        <script src="{{ url_for('static', filename='projet.js') }}"></script>
+        <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+        <script>
+            $(document).ready(function(){
+                $('.carousel').carousel();
+            });
+      
+            
+        </script>
+    </body>   
+</html>

@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='projet2.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='font-awesome-4.7.0/css/font-awesome.min.css') }}">
+    <style>
+            /* Navbar style */
+            header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 8px 5%;
+                background-color: white;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                position: fixed;
+                width: 100%;
+                top: 0;
+                z-index: 1000;
+                margin-top: 0;
+                animation: navbarSlideDown 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+            }
+
+            /* Logo style */
+            .logo {
+                display: flex;
+                align-items: center;
+                text-decoration: none;
+                font-size: 28px;
+                font-weight: 700;
+                color: #333;
+                transition: all 0.3s ease;
+            }
+
+            .logo-img {
+                height: 55px;
+            }
+
+            .logo .trip {
+                color: #2d7b39;
+            }
+
+            .logo:hover {
+                transform: scale(1.02);
+            }
+
+            /* Navigation left */
+            .nav {
+                display: flex;
+                align-items: center;
+                gap: 2rem;
+                margin-left: 2rem;
+                list-style: none;
+                padding: 0;
+                margin-top: 25px;
+            }
+
+            .nav li a {
+                color: #333;
+                text-decoration: none;
+                font-weight: bold;
+                position: relative;
+                transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+                padding: 12px 15px;
+                border-radius: 50px;
+            }
+
+            .nav li a:hover{
+                background-color: #f0f0f0;
+                color: #2d7b39;
+                margin: 0 -8px;
+            }
+
+            /* Navigation right */
+            .compte {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+
+            /* Language selector */
+            .browser-default {
+                appearance: none;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                padding: 8px 32px 8px 12px;
+                border: 1px solid #2d7b39;
+                border-radius: 20px;
+                background-color: white;
+                color: #333;
+                font-size: 14px;
+                font-weight: 500;
+                cursor: pointer;
+                outline: none;
+                transition: all 0.3s ease;
+                background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23399345'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+                background-repeat: no-repeat;
+                background-position: right 10px center;
+                background-size: 15px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            }
+
+            .browser-default:hover {
+                border-color: #399345;
+                box-shadow: 0 0 0 1px #399345;
+            }
+
+            .browser-default:focus {
+                border-color: #399345;
+                box-shadow: 0 0 0 2px rgba(57, 147, 69, 0.3);
+            }
+
+            /* Profile button */
+            .profile-btn {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 8px 16px;
+                border-radius: 30px;
+                text-decoration: none;
+                color: #333;
+                font-weight: 500;
+                transition: all 0.3s ease;
+            }
+
+            .avatar {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                object-fit: cover;
+                border: 2px solid #399345;
+                transition: all 0.3s ease;
+            }
+
+            .profile-btn:hover .avatar {
+                transform: scale(1.1);
+                border-color: #2d7b39;
+            }
+
+            .profile-btn:hover span {
+                color: #399345;
+            }
+
+            /* Mobile menu */
+            .menu-toggle {
+                display: none;
+                cursor: pointer;
+                font-size: 1.5rem;
+            }
+
+            /* Responsive styles */
+            @media (max-width: 992px) {
+                header {
+                    flex-wrap: wrap;
+                    padding: 15px 5%;
+                }
+                
+                .nav, .compte {
+                    display: none;
+                    width: 100%;
+                    flex-direction: column;
+                    background-color: white;
+                    margin-top: 15px;
+                }
+                
+                .nav.show, .compte.show {
+                    display: flex;
+                    gap: 0.5rem;
+                }
+                
+                .nav li, .compte li {
+                    margin: 5px 0;
+                    width: 100%;
+                }
+                
+                .nav li a {
+                    display: block;
+                    padding: 10px;
+                    margin: 0;
+                }
+                
+                .menu-toggle {
+                    display: block;
+                }
+                
+                .input-field {
+                    width: 100%;
+                    margin-bottom: 10px;
+                }
+            }
+
+            /* Animation */
+            @keyframes navbarSlideDown {
+                0% {
+                    transform: translateY(-100%);
+                    opacity: 0;
+                }
+                100% {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
+                }
+
+    </style>
+    <title>BlediTrip - Accueil</title>
+    </head>
+    <body>
+    <header>
+    <a href="#" class="logo">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo BlediTrip" class="logo-img" style="height: 40px; vertical-align: middle;">
+        <span style="margin-left: 8px;">Bledi<span class="trip">Trip</span></span>
+    </a>
+    <ul class="nav">
+        <li><a href="{{ url_for('accueil') }}"> Accueil</a></li>
+        <li><a href="{{ url_for('recommendations') }}" class="active" id="recommendation-link">Recommandation</a></li>
+        <li><a href="{{ url_for('recommendations2') }}" class="active">Plan de voyage</a></li>
+        <li><a href="{{ url_for('favoris') }}">Mes interactions</a></li>
+    </ul>
+    <ul class="compte">
+        <div class="input-field">
+            <select class="browser-default">
+                <option value="fr">Français</option>
+            </select>
+        </div>
+        <li>
+            <a href="{{ url_for('profil') }}" class="profile-btn">
+                <img src="{{ url_for('static', filename='images/image (2).png') }}" alt="Profil" class="avatar">
+                <span>{{ user.prenom }}</span>
+            </a>
+        </li>
+    </ul>
+    <div class="menu-toggle" id="menu-toggle"><i class="fa fa-bars"></i></div>
+    </header>
+
+    <!-- Afficher la localisation -->
+    <main class="main-content">
+        <div class="welcome-section">
+            <h1>Bienvenue, {{ user.prenom }} !</h1>
+            <p>Commencez à explorer les recommandations et à planifier votre voyage.</p>
+            {% if position and wilaya %}
+            <div class="localisation-info">
+                <p>Découvrez les lieux intéressants dans <strong>{{ wilaya }}</strong></p>
+            </div>
+            {% endif %}
+            <div class="manual-selection-section">
+                <h3>Explorer d'autres wilayas</h3>
+                <div class="row" style="display: flex; align-items: center; gap: 15px; margin-bottom: 0;">
+                    <div class="input-field" style="flex: 1; margin: 0;">
+                        <select name="wilaya" id="wilaya-select">
+                            <option value="" disabled selected>Choisissez une wilaya</option>
+                            {% for w in wilayas %}
+                            <option value="{{ w }}" {% if w==wilaya %}selected{% endif %}>{{ w }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <button id="filter-button" class="btn waves-effect waves-light" 
+                style="height: 40px; line-height: 40px; padding: 0 20px;">
+                    Filtrer
+                </button>
+            </div>
+        </div>
+        
+        
+        <div class="lieux-grid">
+            {% if lieux_data %}
+                {% for lieu in lieux_data %}
+                <div class="destination-block">
+                    <img src="{{ lieu.image_drive_url }}" alt="{{ lieu.nom }}" class="destination-image-flat">
+                    <div class="destination-text">
+                        <p class="destination-location">
+                            {% if lieu.address %}
+                            <a href="{{ lieu.address }}" target="_blank" class="gps-link">
+                                <i class="fa fa-map-marker" aria-hidden="true"></i>
+                            </a>
+                            <span>{% endif %} {{ lieu.wilaya }}, {{ lieu.commune }}</span>
+                        </p>
+                        <h3 class="destination-title tooltipped" data-tooltip="{{ lieu.nom }}">{{ lieu.nom }}</h3>
+                        <div class="destination-meta">
+                            <span class="destination-category">{{ lieu.category }}</span>
+                            {% if lieu.subcategory %}
+                            <span class="destination-subcategory">{{ lieu.subcategory }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="star-rating" data-lieu-id="{{ lieu.lieu_id }}">
+                            {% for i in range(1, 6) %}
+                              <i class="fa fa-star-o star" data-value="{{ i }}"></i>
+                            {% endfor %}
+                        </div>
+                        <div class="destination-action">
+                            <span class="destination-price tooltipped" data-tooltip="{{ lieu.entry_fee }}">
+                                {% if lieu.entry_fee %}
+                                    {{ lieu.entry_fee|replace("da", "")|trim }} DA
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </span>
+                            <a href="{{ url_for('details_lieu', lieu_id=lieu.lieu_id) }}" class="destination-link">
+                                voir détails <i class="fa fa-chevron-right" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="no-lieux">Aucun lieu trouvé dans votre région. Essayez de rafraîchir la page.</p>
+            {% endif %}
+        </div>
+             
+    </main>
+    <script>
+        // Script spécifique pour le header seulement
+        document.addEventListener('DOMContentLoaded', function() {
+            // Menu toggle pour mobile
+            const menuToggle = document.getElementById('menu-toggle');
+            const nav = document.querySelector('.nav');
+            const compte = document.querySelector('.compte');
+            
+            menuToggle.addEventListener('click', function() {
+                nav.classList.toggle('show');
+                compte.classList.toggle('show');
+            });
+            
+            // Gestion du lien de recommandation
+            var recommandationLink = document.getElementById('recommendation-link');
+            if (recommandationLink) {
+                recommandationLink.addEventListener('click', function(event) {
+                    alert("Veuillez patienter, nous préparons vos recommandations...");
+                });
+            }
+            
+            // Initialiser le select Materialize
+            var elems = document.querySelectorAll('select');
+            M.FormSelect.init(elems);
+            
+            // Gérer le filtrage
+            document.getElementById('filter-button').addEventListener('click', function() {
+                var wilaya = document.getElementById('wilaya-select').value;
+                if (wilaya) {
+                    window.location.href = '/accueil?wilaya=' + encodeURIComponent(wilaya);
+                }
+            });
+        });  
+        document.addEventListener('DOMContentLoaded', function() {
+            // Ajouter des délais d'animation pour chaque lien
+            document.querySelectorAll('.nav li').forEach((item, index) => {
+                item.style.setProperty('--i', index);
+            });
+            
+            // Animation spéciale au survol des liens
+            document.querySelectorAll('.nav li a').forEach(link => {
+                link.addEventListener('mouseenter', function() {
+                    this.style.animation = 'none';
+                    void this.offsetWidth; // Déclenche un reflow
+                    this.style.animation = 'linkHover 0.3s ease-out';
+                });
+            });
+        });    
+    </script>
+    <script src="{{ url_for('static', filename='projet2.js') }}"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes Favoris | BlediTrip</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='favoris.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='font-awesome-4.7.0/css/font-awesome.min.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+       </head>
+       <body>
+       <header>
+       <a href="#" class="logo">
+           <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo BlediTrip" class="logo-img" style="height: 40px; vertical-align: middle;">
+           <span style="margin-left: 8px;">Bledi<span class="trip">Trip</span></span>
+       </a>
+       <ul class="nav">
+           <li><a href="{{ url_for('accueil') }}"> Accueil</a></li>
+           <li><a href="{{ url_for('recommendations') }}" class="active" id="recommendation-link">Recommandation</a></li>
+           <li><a href="{{ url_for('recommendations2') }}" class="active">Plan de voyage</a></li>
+           <li><a href="{{ url_for('favoris') }}">Mes interactions</a></li>
+       </ul>
+       <ul class="compte">
+           <div class="input-field">
+               <select class="browser-default">
+                   <option value="fr">Français</option>
+               </select>
+           </div>
+           <li>
+               <a href="{{ url_for('profil') }}" class="profile-btn">
+                   <img src="{{ url_for('static', filename='images/image (2).png') }}" alt="Profil" class="avatar">
+                   <span>{{ user.prenom }}</span>
+               </a>
+           </li>
+       </ul>
+       <div class="menu-toggle" id="menu-toggle"><i class="fa fa-bars"></i></div>
+       </header>
+    <main class="main-content">
+        <div class="lieux-grid">
+            {% if lieux_data %}
+                {% for lieu in lieux_data %}
+                <div class="destination-block">
+                    <img src="{{ lieu.image_drive_url }}" alt="{{ lieu.nom }}" class="destination-image-flat">
+                    <div class="destination-text">
+                        <p class="destination-location">
+                            {% if lieu.address %}
+                            <a href="{{ lieu.address }}" target="_blank" class="gps-link">
+                                <i class="fa fa-map-marker" aria-hidden="true"></i>
+                            </a>
+                            {% endif %}
+                            <span>{{ lieu.wilaya }}, {{ lieu.commune }}</span>
+                        </p>
+                        <h3 class="destination-title tooltipped" data-tooltip="{{ lieu.nom }}">{{ lieu.nom }}</h3>
+                        
+                        <div class="destination-meta">
+                            <span class="destination-category">{{ lieu.category }}</span>
+                            {% if lieu.subcategory %}
+                            <span class="destination-subcategory">{{ lieu.subcategory }}</span>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Section d'évaluation -->
+                        <div class="user-interaction">
+                            {% if lieu.rating %}
+                            <div class="user-rating">
+                                {% for i in range(1, 6) %}
+                                    <i class="material-icons {% if i <= lieu.rating %}filled{% endif %}">
+                                        {% if i <= lieu.rating %}star{% else %}star_border{% endif %}
+                                    </i>
+                                {% endfor %}
+                                <span class="rating-value">{{ lieu.rating }}/5</span>
+                            </div>
+                            {% endif %}
+                            
+                            {% if lieu.review %}
+                            <div class="user-review tooltipped" data-tooltip="{{ lieu.review }}">
+                                <p>"{{ lieu.review }}"</p>
+                            </div>
+                            {% endif %}
+                            
+                            {% if lieu.interaction_id %}
+                            <button class="btn-delete-interaction" data-interaction-id="{{ lieu.interaction_id }}">
+                                <i class="material-icons">delete</i> Supprimer
+                            </button>
+                            <div class="error-message"></div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="destination-action">
+                            <span class="destination-price tooltipped" data-tooltip="{{ lieu.entry_fee }}">
+                                {% if lieu.entry_fee and lieu.entry_fee.lower() != 'gratuit' %}
+                                    {{ lieu.entry_fee|replace("da", "")|trim }} DA
+                                {% else %}
+                                    Gratuit
+                                {% endif %}
+                            </span>
+                            <a href="{{ url_for('details_lieu', lieu_id=lieu.lieu_id) }}" class="destination-link">
+                                Voir détails <i class="fa fa-chevron-right" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-interactions">
+                    <i class="material-icons large">favorite_border</i>
+                    <h3>Vous n'avez pas encore d'interactions</h3>
+                    <p>Explorez des lieux et notez-les pour les retrouver ici</p>
+                    <a href="{{ url_for('accueil') }}" class="btn">Explorer maintenant</a>
+                </div>
+            {% endif %}
+        </div>
+    </main>
+    <script>
+         document.addEventListener('DOMContentLoaded', function() {
+            // Ajouter des délais d'animation pour chaque lien
+            document.querySelectorAll('.nav li').forEach((item, index) => {
+                item.style.setProperty('--i', index);
+            });
+            
+            // Animation spéciale au survol des liens
+            document.querySelectorAll('.nav li a').forEach(link => {
+                link.addEventListener('mouseenter', function() {
+                    this.style.animation = 'none';
+                    void this.offsetWidth; // Déclenche un reflow
+                    this.style.animation = 'linkHover 0.3s ease-out';
+                });
+            });
+        });  
+
+        // Script spécifique pour le header seulement
+        document.addEventListener('DOMContentLoaded', function() {
+            // Menu toggle pour mobile
+            const menuToggle = document.getElementById('menu-toggle');
+            const nav = document.querySelector('.nav');
+            const compte = document.querySelector('.compte');
+            
+            menuToggle.addEventListener('click', function() {
+                nav.classList.toggle('show');
+                compte.classList.toggle('show');
+            });
+            
+            // Gestion du lien de recommandation
+            var recommandationLink = document.getElementById('recommendation-link');
+            if (recommandationLink) {
+                recommandationLink.addEventListener('click', function(event) {
+                    alert("Veuillez patienter, nous préparons vos recommandations...");
+                });
+            }
+            
+            // Initialiser le select Materialize
+            var elems = document.querySelectorAll('select');
+            M.FormSelect.init(elems);
+            
+            // Gérer le filtrage
+            document.getElementById('filter-button').addEventListener('click', function() {
+                var wilaya = document.getElementById('wilaya-select').value;
+                if (wilaya) {
+                    window.location.href = '/accueil?wilaya=' + encodeURIComponent(wilaya);
+                }
+            });
+        });     
+    </script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="{{ url_for('static', filename='projet2.js') }}"></script>
+</body>
+</html>

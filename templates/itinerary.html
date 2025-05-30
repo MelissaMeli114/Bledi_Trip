@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='recommendations.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='font-awesome-4.7.0/css/font-awesome.min.css') }}">
+    <title>BlediTrip - Itinéraire</title>
+    <style>
+        /* Couleurs principales */
+        :root {
+            --primary-green: #2d7b39;
+            --secondary-green: #399345;
+            --light-green: #dcedc8;
+            --dark-green: #33691e;
+            --travel-orange: #ff9800;
+            --visit-teal: #26a69a;
+            --meal-red: #f44336;
+        }
+
+        .itinerary-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .itinerary-header {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .itinerary-header h1 {
+            font-size: 2rem;
+            color: var(--primary-green);
+            margin-bottom: 10px;
+        }
+        
+        .itinerary-header p {
+            color: #757575;
+            font-size: 1.1rem;
+        }
+        
+        .itinerary-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 15px;
+            flex: 1;
+            min-width: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+            border-top: 4px solid #399345;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .stat-card .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-green);
+            margin: 5px 0;
+        }
+        
+        .stat-card .stat-label {
+            font-size: 0.9rem;
+            color: #757575;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .stat-card i {
+            font-size: 2rem;
+            color: var(--secondary-green);
+            margin-bottom: 10px;
+        }
+        
+        .itinerary-map {
+            height: 400px;
+            width: 100%;
+            background-color: var(--light-green);
+            margin-bottom: 30px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #399345;
+        }
+        
+        .itinerary-timeline {
+            position: relative;
+            margin-bottom: 50px;
+        }
+        
+        .timeline-container {
+            padding-left: 70px;
+            position: relative;
+        }
+        
+        .timeline-container::before {
+            content: '';
+            position: absolute;
+            left: 30px;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background-color: #e0e0e0;
+            z-index: 1;
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding: 15px 0;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+        
+        .timeline-item:not(:last-child) {
+            padding-bottom: 30px;
+        }
+        
+        .timeline-time {
+            position: absolute;
+            left: -70px;
+            top: 15px;
+            font-size: 1rem;
+            font-weight: 500;
+            width: 60px;
+            text-align: right;
+            color: var(--primary-green);
+        }
+        
+        .timeline-dot {
+            position: absolute;
+            left: -42px;
+            top: 18px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: white;
+            border: 4px solid var(--primary-green);
+            z-index: 2;
+        }
+        
+        .timeline-dot.travel {
+            border-color: var(--travel-orange);
+        }
+        
+        .timeline-dot.visit {
+            border-color: var(--visit-teal);
+        }
+        
+        .timeline-dot.meal {
+            border-color: var(--meal-red);
+        }
+        
+        .timeline-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 20px;
+            transition: transform 0.2s;
+            border-left: 4px solid var(--primary-green);
+        }
+        
+        .timeline-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+        
+        .timeline-card.travel {
+            border-left-color: var(--travel-orange);
+            border-right-color: var(--travel-orange);
+        }
+        
+        .timeline-card.visit {
+            border-left-color: var(--visit-teal);
+            border-right-color: var(--visit-teal);
+        }
+        
+        .timeline-card.meal {
+            border-left-color: var(--meal-red);
+            border-right-color: var(--meal-red);
+        }
+        
+        .timeline-card h4 {
+            font-size: 1.4rem;
+            margin: 0 0 10px;
+            color: #424242;
+        }
+        
+        .timeline-card h4 i {
+            margin-right: 10px;
+        }
+        
+        .travel-mode {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-right: 10px;
+            color: white;
+            font-weight: 500;
+        }
+        
+        .travel-mode.walking {
+            background-color: var(--secondary-green);
+        }
+        
+        .travel-mode.driving {
+            background-color: #42a5f5;
+        }
+        
+        .travel-mode.cycling {
+            background-color: #ec407a;
+        }
+        
+        .travel-mode i {
+            margin-right: 5px;
+        }
+        
+        .place-details {
+            display: flex;
+            align-items: flex-start;
+            margin-top: 15px;
+        }
+        
+        .place-image {
+            width: 120px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-right: 15px;
+            border: 1px solid var(--light-green);
+        }
+        
+        .place-info {
+            flex: 1;
+        }
+        
+        .place-info p {
+            margin: 5px 0;
+        }
+        
+        .duration-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            background-color: var(--light-green);
+            color: var(--dark-green);
+            font-weight: 500;
+            margin-left: 10px;
+        }
+        
+        .itinerary-legend {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border-top: 4px solid #399345;
+            text-align: center;
+        }
+        
+        .legend-title {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: var(--dark-green);
+        }
+        
+        .legend-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-right: 15px;
+        }
+        
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .legend-text {
+            font-size: 0.9rem;
+            color: #616161;
+        }
+        
+    /* Conteneur principal de la timeline */
+    .timeline-container {
+        padding-left:83px; /* Augmentez cet espace pour laisser de la place aux horaires */
+        position: relative;
+    }
+
+    /* Ligne verticale de la timeline */
+    .timeline-container::before {
+        content: '';
+        position: absolute;
+        left: 20px; /* Ajustez cette valeur pour aligner avec les points */
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background-color: #e0e0e0;
+        z-index: 1;
+    }
+
+    /* Point de la timeline */
+    .timeline-dot {
+        position: absolute;
+        left: -70px; /* Ajustez cette valeur pour aligner avec la ligne */
+        top: 18px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background-color: white;
+        border: 4px solid var(--primary-green);
+        z-index: 2;
+    }
+
+    /* Conteneur des horaires de visite */
+    .visit-time-range {
+        position: absolute;
+        left: -110px; /* Position à gauche de la carte */
+        top: 15px;
+        width: 100px;
+        text-align: right;
+        font-size: 0.9rem;
+        color: var(--primary-green);
+        display: flex;
+        flex-direction: column;
+        line-height: 1.3;
+    }
+
+    /* Style pour les heures individuelles */
+    .visit-time-range .time {
+        font-weight: 500;
+    }
+
+    /* Séparateur entre les heures */
+    .visit-time-range .time-separator {
+        margin: 3px 0;
+        color: #757575;
+        font-size: 0.8rem;
+    }
+
+    /* Ajustement spécifique pour les cartes de visite */
+    .timeline-card.visit {
+        position: relative;
+        padding-left: 20px; /* Espace à gauche de la carte */
+        min-height: 80px; /* Hauteur minimale pour contenir les horaires */
+    }
+
+    /* Responsive pour petits écrans */
+    @media (max-width: 768px) {
+        .timeline-container {
+            padding-left: 90px;
+        }
+        
+        .timeline-container::before {
+            left: 50px;
+        }
+        
+        .timeline-dot {
+            left: -40px;
+            width: 16px;
+            height: 16px;
+        }
+        
+        .visit-time-range {
+            left: -80px;
+            width: 70px;
+            font-size: 0.8rem;
+        }
+        
+        .timeline-card.visit {
+            min-height: 70px;
+        }
+    }
+        
+        .main-content{
+            margin-top: -60px;
+        }
+        /* Styles spécifiques pour le header seulement */
+               /* Navbar style */
+               header {
+                   display: flex;
+                   justify-content: space-between;
+                   align-items: center;
+                   padding: 8px 5%;
+                   background-color: white;
+                   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                   position: fixed;
+                   width: 100%;
+                   top: 0;
+                   z-index: 1000;
+                   margin-top: 0;
+                   animation: navbarSlideDown 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+               }
+   
+               /* Logo style */
+               .logo {
+                   display: flex;
+                   align-items: center;
+                   text-decoration: none;
+                   font-size: 28px;
+                   font-weight: 700;
+                   color: #333;
+                   transition: all 0.3s ease;
+               }
+   
+               .logo-img {
+                   height: 55px;
+               }
+   
+               .logo .trip {
+                   color: #2d7b39;
+               }
+   
+               .logo:hover {
+                   transform: scale(1.02);
+               }
+   
+               /* Navigation left */
+               .nav {
+                   display: flex;
+                   align-items: center;
+                   gap: 2rem;
+                   margin-left: 2rem;
+                   list-style: none;
+                   padding: 0;
+                   margin-top: 25px;
+               }
+   
+               .nav li a {
+                   color: #333;
+                   text-decoration: none;
+                   font-weight: bold;
+                   position: relative;
+                   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+                   padding: 12px 15px;
+                   border-radius: 50px;
+               }
+   
+               .nav li a:hover{
+                   background-color: #f0f0f0;
+                   color: #2d7b39;
+                   margin: 0 -8px;
+               }
+   
+               /* Navigation right */
+               .compte {
+                   display: flex;
+                   align-items: center;
+                   gap: 10px;
+                   list-style: none;
+                   padding: 0;
+                   margin: 0;
+               }
+   
+               /* Language selector */
+               .browser-default {
+                   appearance: none;
+                   -webkit-appearance: none;
+                   -moz-appearance: none;
+                   padding: 8px 32px 8px 12px;
+                   border: 1px solid #2d7b39;
+                   border-radius: 20px;
+                   background-color: white;
+                   color: #333;
+                   font-size: 14px;
+                   font-weight: 500;
+                   cursor: pointer;
+                   outline: none;
+                   transition: all 0.3s ease;
+                   background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23399345'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+                   background-repeat: no-repeat;
+                   background-position: right 10px center;
+                   background-size: 15px;
+                   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+               }
+   
+               .browser-default:hover {
+                   border-color: #399345;
+                   box-shadow: 0 0 0 1px #399345;
+               }
+   
+               .browser-default:focus {
+                   border-color: #399345;
+                   box-shadow: 0 0 0 2px rgba(57, 147, 69, 0.3);
+               }
+   
+               /* Profile button */
+               .profile-btn {
+                   display: flex;
+                   align-items: center;
+                   gap: 8px;
+                   padding: 8px 16px;
+                   border-radius: 30px;
+                   text-decoration: none;
+                   color: #333;
+                   font-weight: 500;
+                   transition: all 0.3s ease;
+               }
+   
+               .avatar {
+                   width: 40px;
+                   height: 40px;
+                   border-radius: 50%;
+                   object-fit: cover;
+                   border: 2px solid #399345;
+                   transition: all 0.3s ease;
+               }
+   
+               .profile-btn:hover .avatar {
+                   transform: scale(1.1);
+                   border-color: #2d7b39;
+               }
+   
+               .profile-btn:hover span {
+                   color: #399345;
+               }
+   
+               /* Mobile menu */
+               .menu-toggle {
+                   display: none;
+                   cursor: pointer;
+                   font-size: 1.5rem;
+               }
+   
+               /* Responsive styles */
+               @media (max-width: 992px) {
+                   header {
+                       flex-wrap: wrap;
+                       padding: 15px 5%;
+                   }
+                   
+                   .nav, .compte {
+                       display: none;
+                       width: 100%;
+                       flex-direction: column;
+                       background-color: white;
+                       margin-top: 15px;
+                   }
+                   
+                   .nav.show, .compte.show {
+                       display: flex;
+                       gap: 0.5rem;
+                   }
+                   
+                   .nav li, .compte li {
+                       margin: 5px 0;
+                       width: 100%;
+                   }
+                   
+                   .nav li a {
+                       display: block;
+                       padding: 10px;
+                       margin: 0;
+                   }
+                   
+                   .menu-toggle {
+                       display: block;
+                   }
+                   
+                   .input-field {
+                       width: 100%;
+                       margin-bottom: 10px;
+                   }
+               }
+   
+               /* Animation */
+               @keyframes navbarSlideDown {
+                   0% {
+                       transform: translateY(-100%);
+                       opacity: 0;
+                   }
+                   100% {
+                       transform: translateY(0);
+                       opacity: 1;
+                   }
+                   }
+   
+       </style>
+       </head>
+       <body>
+       <header>
+       <a href="#" class="logo">
+           <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo BlediTrip" class="logo-img" style="height: 40px; vertical-align: middle;">
+           <span style="margin-left: 8px;">Bledi<span class="trip">Trip</span></span>
+       </a>
+       <ul class="nav">
+           <li><a href="{{ url_for('accueil') }}"> Accueil</a></li>
+           <li><a href="{{ url_for('recommendations') }}" class="active" id="recommendation-link">Recommandation</a></li>
+           <li><a href="{{ url_for('recommendations2') }}" class="active">Plan de voyage</a></li>
+           <li><a href="{{ url_for('favoris') }}">Mes interactions</a></li>
+       </ul>
+       <ul class="compte">
+           <div class="input-field">
+               <select class="browser-default">
+                   <option value="fr">Français</option>
+               </select>
+           </div>
+           <li>
+               <a href="{{ url_for('profil') }}" class="profile-btn">
+                   <img src="{{ url_for('static', filename='images/image (2).png') }}" alt="Profil" class="avatar">
+                   <span>{{ user.prenom }}</span>
+               </a>
+           </li>
+       </ul>
+       <div class="menu-toggle" id="menu-toggle"><i class="fa fa-bars"></i></div>
+       </header>
+
+    <main class="main-content">
+        <div class="itinerary-container">
+            <div class="itinerary-header">
+                <h1>Votre Itinéraire Optimal</h1>
+                <p>Découvrez le meilleur parcours optimisé pour votre visite</p>
+            </div>
+            
+            <div class="itinerary-stats">
+                <div class="stat-card">
+                    <i class="fa fa-clock-o"></i>
+                    <span class="stat-value">
+                        {% if best_time >= 60 %}
+                            {{ (best_time / 60)|round(1) }} h
+                        {% else %}
+                            {{ best_time|int }} min
+                        {% endif %}
+                    </span>
+                    <span class="stat-label">Temps total</span>
+                </div>
+                <div class="stat-card">
+                    <i class="fa fa-star"></i>
+                    <span class="stat-value">{{ best_satisfaction|round(1) }}</span>
+                    <span class="stat-label">Score de satisfaction</span>
+                </div>
+                <div class="stat-card">
+                    <i class="fa fa-map-marker"></i>
+                    <span class="stat-value">{{ places_visited }}</span>
+                    <span class="stat-label">Lieux visités</span>
+                </div>
+                <div class="stat-card">
+                    <i class="fa fa-walking"></i>
+                    <span class="stat-value">
+                        {% if walking_time >= 60 %}
+                            {{ (walking_time / 60)|round(1) }} h
+                        {% else %}
+                            {{ walking_time|int }} min
+                        {% endif %}
+                    </span>
+                    <span class="stat-label">Temps de marche</span>
+                </div>
+            </div>
+            
+            <div class="itinerary-legend">
+                <div class="legend-title">Légende</div>
+                <div class="legend-items">
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background-color: var(--visit-teal);"></div>
+                        <span class="legend-text">Visite</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background-color: var(--travel-orange);"></div>
+                        <span class="legend-text">Déplacement</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background-color: var(--meal-red);"></div>
+                        <span class="legend-text">Pause repas</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="itinerary-map">
+                {{ map_html|safe }}
+            </div>
+            
+            <div class="itinerary-timeline">
+                <div class="timeline-container">
+                    {% for event in itinerary_events %}
+                        <div class="timeline-item">
+                            <div class="timeline-time">{{ event.start }}</div>
+                            <div class="timeline-dot {{ event.type }}"></div>
+                            
+                            {% if event.type == 'travel' %}
+                                <div class="timeline-card travel">
+                                    <h4><i class="fa fa-exchange"></i> Déplacement</h4>
+                                    <p>
+                                        De <strong>{{ event.from }}</strong> à <strong>{{ event.to }}</strong>
+                                        <span class="duration-badge">{{ event.duration|int }} min</span>
+                                    </p>
+                                    <span class="travel-mode {{ event.mode }}">
+                                        {% if event.mode == 'walking' %}
+                                            <i class="fa fa-walking"></i> À pied
+                                        {% elif event.mode == 'driving' %}
+                                            <i class="fa fa-car"></i> En voiture
+                                        {% elif event.mode == 'cycling' %}
+                                            <i class="fa fa-bicycle"></i> Vélo
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            {% elif event.type == 'visit' %}
+                                <div class="timeline-card visit">
+                                    <h4><i class="fa fa-map-marker"></i> {{ event.place }}</h4>
+                                    <span class="duration-badge">{{ (event.duration / 60)|round(1) }} h</span>
+                                    
+                                    <div class="place-details">
+                                        <div class="place-info">
+                                            <p>
+                                                <i class="fa fa-tag"></i> {{ event.category }}
+                                                <span class="right">
+                                                    <i class="fa fa-star" style="color: #ffc107;"></i>
+                                                    {{ event.rating|round(1) }}
+                                                </span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% elif event.type == 'meal' %}
+                                <div class="timeline-card meal">
+                                    <h4><i class="fa fa-utensils"></i> Pause Repas</h4>
+                                    <span class="duration-badge">{{ event.duration|int }} min</span>
+                                    <p>Profitez d'une pause repas pour vous détendre</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="itinerary-actions">
+                <a href="{{ url_for('itinerary_settings') }}" class="btn waves-effect waves-light grey">
+                    <i class="fa fa-sliders"></i> Modifier les paramètres
+                </a>
+                <a href="{{ url_for('recommendations2') }}" class="btn waves-effect waves-light green">
+                    <i class="fa fa-search"></i> Nouvelles recommandations
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Materialize components
+            var elems = document.querySelectorAll('select');
+            M.FormSelect.init(elems);
+            
+            // Add smooth animation when timeline items enter the viewport
+            const timelineItems = document.querySelectorAll('.timeline-item');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            timelineItems.forEach((item, index) => {
+                // Stagger the animations
+                setTimeout(() => {
+                    observer.observe(item);
+                }, index * 100);
+            });
+        });
+
+                // Script spécifique pour le header seulement
+                document.addEventListener('DOMContentLoaded', function() {
+            // Menu toggle pour mobile
+            const menuToggle = document.getElementById('menu-toggle');
+            const nav = document.querySelector('.nav');
+            const compte = document.querySelector('.compte');
+            
+            menuToggle.addEventListener('click', function() {
+                nav.classList.toggle('show');
+                compte.classList.toggle('show');
+            });
+            
+            // Gestion du lien de recommandation
+            var recommandationLink = document.getElementById('recommendation-link');
+            if (recommandationLink) {
+                recommandationLink.addEventListener('click', function(event) {
+                    alert("Veuillez patienter, nous préparons vos recommandations...");
+                });
+            }
+            
+            // Initialiser le select Materialize
+            var elems = document.querySelectorAll('select');
+            M.FormSelect.init(elems);
+            
+            // Gérer le filtrage
+            document.getElementById('filter-button').addEventListener('click', function() {
+                var wilaya = document.getElementById('wilaya-select').value;
+                if (wilaya) {
+                    window.location.href = '/accueil?wilaya=' + encodeURIComponent(wilaya);
+                }
+            });
+        });  
+
+        document.addEventListener('DOMContentLoaded', function() {
+        // Définir l'ordre des animations
+        document.querySelectorAll('.stat-card').forEach((card, index) => {
+            card.style.setProperty('--order', index);
+        });
+        
+        document.querySelectorAll('.timeline-item').forEach((item, index) => {
+            item.style.setProperty('--item-order', index);
+        });
+        
+        // Animation spéciale pour la carte
+        setTimeout(() => {
+            const map = document.querySelector('.itinerary-map');
+            if (map) {
+                map.style.transform = 'scale(1.02)';
+                setTimeout(() => {
+                    map.style.transform = 'scale(1)';
+                    map.style.transition = 'transform 0.5s ease';
+                }, 300);
+            }
+        }, 1500);
+    });
+        document.addEventListener('DOMContentLoaded', function() {
+            // Ajouter des délais d'animation pour chaque lien
+            document.querySelectorAll('.nav li').forEach((item, index) => {
+                item.style.setProperty('--i', index);
+            });
+            
+            // Animation spéciale au survol des liens
+            document.querySelectorAll('.nav li a').forEach(link => {
+                link.addEventListener('mouseenter', function() {
+                    this.style.animation = 'none';
+                    void this.offsetWidth; // Déclenche un reflow
+                    this.style.animation = 'linkHover 0.3s ease-out';
+                });
+            });
+        }); 
+    </script>
+</body>
+</html>

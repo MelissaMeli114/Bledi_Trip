@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='recommendations.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='font-awesome-4.7.0/css/font-awesome.min.css') }}">
+    <title>BlediTrip - Paramètres d'itinéraire</title>
+    <style>
+
+        /* Couleurs principales */
+        :root {
+            --primary-green: #2d7b39;
+            --secondary-green: #399345;
+            --light-green: #dcedc8;
+            --dark-green: #33691e;
+        }
+         /* Navbar style */
+         header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 8px 5%;
+                background-color: white;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                position: fixed;
+                width: 100%;
+                top: 0;
+                z-index: 1000;
+                margin-top: 0;
+                animation: navbarSlideDown 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+            }
+
+            /* Logo style */
+            .logo {
+                display: flex;
+                align-items: center;
+                text-decoration: none;
+                font-size: 28px;
+                font-weight: 700;
+                color: #333;
+                transition: all 0.3s ease;
+            }
+
+            .logo-img {
+                height: 55px;
+            }
+
+            .logo .trip {
+                color: #2d7b39;
+            }
+
+            .logo:hover {
+                transform: scale(1.02);
+            }
+
+            /* Navigation left */
+            .nav {
+                display: flex;
+                align-items: center;
+                gap: 2rem;
+                margin-left: 2rem;
+                list-style: none;
+                padding: 0;
+                margin-top: 25px;
+            }
+
+            .nav li a {
+                color: #333;
+                text-decoration: none;
+                font-weight: bold;
+                position: relative;
+                transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+                padding: 12px 15px;
+                border-radius: 50px;
+            }
+
+            .nav li a:hover{
+                background-color: #f0f0f0;
+                color: #2d7b39;
+                margin: 0 -8px;
+            }
+
+            /* Navigation right */
+            .compte {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+
+            /* Language selector */
+            .browser-default {
+                appearance: none;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                padding: 8px 32px 8px 12px;
+                border: 1px solid #2d7b39;
+                border-radius: 20px;
+                background-color: white;
+                color: #333;
+                font-size: 14px;
+                font-weight: 500;
+                cursor: pointer;
+                outline: none;
+                transition: all 0.3s ease;
+                background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23399345'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+                background-repeat: no-repeat;
+                background-position: right 10px center;
+                background-size: 15px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            }
+
+            .browser-default:hover {
+                border-color: #399345;
+                box-shadow: 0 0 0 1px #399345;
+            }
+
+            .browser-default:focus {
+                border-color: #399345;
+                box-shadow: 0 0 0 2px rgba(57, 147, 69, 0.3);
+            }
+
+            /* Profile button */
+            .profile-btn {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 8px 16px;
+                border-radius: 30px;
+                text-decoration: none;
+                color: #333;
+                font-weight: 500;
+                transition: all 0.3s ease;
+            }
+
+            .avatar {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                object-fit: cover;
+                border: 2px solid #399345;
+                transition: all 0.3s ease;
+            }
+
+            .profile-btn:hover .avatar {
+                transform: scale(1.1);
+                border-color: #2d7b39;
+            }
+
+            .profile-btn:hover span {
+                color: #399345;
+            }
+
+            /* Mobile menu */
+            .menu-toggle {
+                display: none;
+                cursor: pointer;
+                font-size: 1.5rem;
+            }
+
+            /* Responsive styles */
+            @media (max-width: 992px) {
+                header {
+                    flex-wrap: wrap;
+                    padding: 15px 5%;
+                }
+                
+                .nav, .compte {
+                    display: none;
+                    width: 100%;
+                    flex-direction: column;
+                    background-color: white;
+                    margin-top: 15px;
+                }
+                
+                .nav.show, .compte.show {
+                    display: flex;
+                    gap: 0.5rem;
+                }
+                
+                .nav li, .compte li {
+                    margin: 5px 0;
+                    width: 100%;
+                }
+                
+                .nav li a {
+                    display: block;
+                    padding: 10px;
+                    margin: 0;
+                }
+                
+                .menu-toggle {
+                    display: block;
+                }
+                
+                .input-field {
+                    width: 100%;
+                    margin-bottom: 10px;
+                }
+            }
+
+            /* Animation */
+            @keyframes navbarSlideDown {
+                0% {
+                    transform: translateY(-100%);
+                    opacity: 0;
+                }
+                100% {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
+        }
+
+        /* Overlay de chargement */
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loading-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary-green);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Structure principale */
+        .settings-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .settings-header {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .settings-header h1 {
+            font-size: 2rem;
+            color: var(--primary-green);
+            margin-bottom: 10px;
+        }
+        
+        .settings-header p {
+            color: #757575;
+            font-size: 1.1rem;
+        }
+        
+        .settings-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        /* Section "À propos" centrée */
+        .settings-info {
+            background-color: var(--light-green);
+            border-left: 4px solid var(--dark-green);
+            padding: 15px;
+            margin: 0 auto 20px;
+            margin-top: -30px;
+            border-radius: 4px;
+            max-width: 800px;
+            text-align: center;
+        }
+        
+        .settings-info h5 {
+            color: var(--dark-green);
+            font-size: 1.2rem;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        
+        .settings-info p {
+            color: #37474f;
+            margin-bottom: -6px;
+        }
+
+        /* Lieux sélectionnés */
+        .selected-places {
+            margin-bottom: 25px;
+        }
+
+        .selected-places h5 {
+            margin-bottom: 15px;
+            color: #455a64;
+            text-align: center;
+        }
+
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .chip {
+            background-color: var(--light-green);
+            color: var(--dark-green);
+            border-radius: 16px;
+            padding: 6px 12px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .chip .category {
+            opacity: 0.7;
+            font-weight: normal;
+            margin-left: 4px;
+            font-size: 0.85em;
+        }
+
+        /* Formulaire */
+        .settings-form {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .settings-form h5 {
+            margin-top: 30px;
+            margin-bottom: 15px;
+            color: #455a64;
+            font-size: 1.2rem;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 8px;
+            text-align: center;
+        }
+
+        .range-label {
+            font-weight: 500;
+            color: #455a64;
+            margin-bottom: 5px;
+        }
+
+        .range-value {
+            text-align: center;
+            color: #455a64;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        input[type=range] {
+            margin: 15px auto;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .switch {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            justify-content: center;
+        }
+
+        .switch-label {
+            margin-left: 15px;
+            font-weight: 500;
+            color: #455a64;
+        }
+
+        /* Options de transport */
+        .transport-options {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .transport-option {
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 10px;
+            background-color: var(--light-green);
+            padding: 8px 15px;
+            border-radius: 20px;
+        }
+
+        .transport-option input[type="checkbox"]:checked + span {
+            color: var(--primary-green);
+            font-weight: bold;
+        }
+
+        .transport-option i {
+            margin-right: 8px;
+            font-size: 1.2rem;
+            color: var(--dark-green);
+        }
+
+        /* Affichage du temps */
+        .time-display {
+            font-size: 1.1rem;
+            color: var(--primary-green);
+            font-weight: bold;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        /* Actions */
+        .settings-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .settings-actions .btn {
+            height: 54px;
+            line-height: 54px;
+            font-size: 16px;
+            padding: 0 30px;
+        }
+
+        .settings-actions .btn.green {
+            background-color: var(--primary-green);
+        }
+
+        .settings-actions .btn.green:hover {
+            background-color: var(--secondary-green);
+        }
+
+        .settings-actions .btn i {
+            margin-right: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .settings-actions {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .settings-actions .btn {
+                width: 100%;
+            }
+        }
+        .main-content{
+            margin-top: -60px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Le reste du code HTML reste inchangé -->
+    <div id="loading-overlay">
+        <div class="loading-container">
+            <div class="loader"></div>
+            <h3>Optimisation de l'itinéraire</h3>
+            <p>Veuillez patienter pendant que nous calculons votre itinéraire optimal...</p>
+        </div>
+    </div>
+
+    <header>
+    <a href="#" class="logo">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo BlediTrip" class="logo-img" style="height: 40px; vertical-align: middle;">
+        <span style="margin-left: 8px;">Bledi<span class="trip">Trip</span></span>
+    </a>
+    <ul class="nav">
+        <li><a href="{{ url_for('accueil') }}"> Accueil</a></li>
+        <li><a href="{{ url_for('recommendations') }}" class="active" id="recommendation-link">Recommandation</a></li>
+        <li><a href="{{ url_for('recommendations2') }}" class="active">Plan de voyage</a></li>
+        <li><a href="{{ url_for('favoris') }}">Mes interactions</a></li>
+    </ul>
+    <ul class="compte">
+        <div class="input-field">
+            <select class="browser-default">
+                <option value="fr">Français</option>
+            </select>
+        </div>
+        <li>
+            <a href="{{ url_for('profil') }}" class="profile-btn">
+                <img src="{{ url_for('static', filename='images/image (2).png') }}" alt="Profil" class="avatar">
+                <span>{{ user.prenom }}</span>
+            </a>
+        </li>
+    </ul>
+    <div class="menu-toggle" id="menu-toggle"><i class="fa fa-bars"></i></div>
+    </header>
+
+    <main class="main-content">
+        <div class="settings-container">
+            <div class="settings-header">
+                <h1>Paramètres de l'itinéraire</h1>
+                <p>Configurez les options pour optimiser votre visite des lieux sélectionnés</p>
+            </div>
+            
+            <form id="optimize-form" action="{{ url_for('optimize_itinerary') }}" method="POST">
+                <div class="settings-card">
+                    <div class="settings-info">
+                        <h5><i class="fa fa-info-circle"></i> À propos de l'optimisation</h5>
+                        <p>Votre parcours est optimisé pour réduire le temps de trajet et améliorer votre expérience.</p>
+                    </div>
+                    
+                    <div class="selected-places">
+                        <h5>Lieux sélectionnés</h5>
+                        <div class="chips">
+                            {% for place in selected_places %}
+                            <div class="chip">
+                                {{ place.name }}
+                                {% if place.category %}
+                                <span class="category">({{ place.category }})</span>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="settings-form">
+                        <h5>Contraintes temporelles</h5>
+                        <div class="row">
+                            <div class="input-field col s12 m6">
+                                <label for="start_time">Heure de départ</label>
+                                <input type="time" id="start_time" name="start_time" value="09:00" required>
+                            </div>
+                            <div class="input-field col s12 m6">
+                                <label for="end_time">Heure de fin</label>
+                                <input type="time" id="end_time" name="end_time" value="17:00" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col s12">
+                                <div class="time-display">
+                                    Durée totale: <span id="total-time-display">8 heures (480 minutes)</span>
+                                </div>
+                                <input type="hidden" id="max_time" name="max_time" value="480">
+                            </div>
+                        </div>
+                        
+                        <h5>Préférences de déplacement</h5>
+                        <div class="row">
+                            <div class="col s12">
+                                <div class="transport-options">
+                                    <label class="transport-option">
+                                        <input type="checkbox" name="transport_modes" value="walking" checked>
+                                        <span><i class="fa fa-walking"></i> Marche</span>
+                                    </label>
+                                    <label class="transport-option">
+                                        <input type="checkbox" name="transport_modes" value="driving" checked>
+                                        <span><i class="fa fa-car"></i> Voiture</span>
+                                    </label>
+                                    <label class="transport-option">
+                                        <input type="checkbox" name="transport_modes" value="cycling" checked>
+                                        <span><i class="fa fa-bicycle"></i> Vélo</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="input-field col s12">
+                                <p class="range-label">Temps maximum de marche</p>
+                                <p class="range-value">
+                                    <span id="max-walking-value">1 heure</span>
+                                </p>
+                                <input type="range" id="max_walking" name="max_walking" min="15" max="180" step="15" value="60">
+                            </div>
+                        </div>
+                        
+                        <h5>Options additionnelles</h5>
+                        <div class="row">
+                            <div class="col s12">
+                                <div class="switch">
+                                    <label>
+                                        Non
+                                        <input type="checkbox" name="include_meal" value="1" checked>
+                                        <span class="lever"></span>
+                                        Oui
+                                    </label>
+                                    <span class="switch-label">Inclure une pause repas</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="settings-actions">
+                    <a href="{{ url_for('recommendations2') }}" class="btn waves-effect waves-light grey">
+                        <i class="fa fa-arrow-left"></i> Retour
+                    </a>
+                    <button type="submit" class="btn waves-effect waves-light green pulse">
+                        <i class="fa fa-magic"></i> Optimiser l'itinéraire
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script>
+                // Script spécifique pour le header seulement
+                document.addEventListener('DOMContentLoaded', function() {
+            // Menu toggle pour mobile
+            const menuToggle = document.getElementById('menu-toggle');
+            const nav = document.querySelector('.nav');
+            const compte = document.querySelector('.compte');
+            
+            menuToggle.addEventListener('click', function() {
+                nav.classList.toggle('show');
+                compte.classList.toggle('show');
+            });
+            
+            // Gestion du lien de recommandation
+            var recommandationLink = document.getElementById('recommendation-link');
+            if (recommandationLink) {
+                recommandationLink.addEventListener('click', function(event) {
+                    alert("Veuillez patienter, nous préparons vos recommandations...");
+                });
+            }
+            
+            // Initialiser le select Materialize
+            var elems = document.querySelectorAll('select');
+            M.FormSelect.init(elems);
+            
+            // Gérer le filtrage
+            document.getElementById('filter-button').addEventListener('click', function() {
+                var wilaya = document.getElementById('wilaya-select').value;
+                if (wilaya) {
+                    window.location.href = '/accueil?wilaya=' + encodeURIComponent(wilaya);
+                }
+            });
+        });    
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Materialize components
+            var elems = document.querySelectorAll('select');
+            M.FormSelect.init(elems);
+            
+            // Time inputs for calculating duration
+            const startTimeInput = document.getElementById('start_time');
+            const endTimeInput = document.getElementById('end_time');
+            const maxTimeInput = document.getElementById('max_time');
+            const totalTimeDisplay = document.getElementById('total-time-display');
+            
+            function calculateDuration() {
+                const startTime = startTimeInput.value;
+                const endTime = endTimeInput.value;
+                
+                if (!startTime || !endTime) return;
+                
+                // Parse times
+                const [startHours, startMinutes] = startTime.split(':').map(Number);
+                const [endHours, endMinutes] = endTime.split(':').map(Number);
+                
+                // Convert to minutes
+                const startTotalMinutes = startHours * 60 + startMinutes;
+                const endTotalMinutes = endHours * 60 + endMinutes;
+                
+                // Calculate duration (handle overnight)
+                let durationMinutes = endTotalMinutes - startTotalMinutes;
+                if (durationMinutes <= 0) {
+                    durationMinutes += 24 * 60; // Add a day
+                }
+                
+                // Update hidden input and display
+                maxTimeInput.value = durationMinutes;
+                
+                const hours = Math.floor(durationMinutes / 60);
+                const minutes = durationMinutes % 60;
+                
+                let timeText = '';
+                if (hours > 0) {
+                    timeText += `${hours} heure${hours > 1 ? 's' : ''}`;
+                }
+                if (minutes > 0) {
+                    timeText += `${hours > 0 ? ' et ' : ''}${minutes} minute${minutes > 1 ? 's' : ''}`;
+                }
+                
+                totalTimeDisplay.textContent = `${timeText} (${durationMinutes} minutes)`;
+            }
+            
+            // Call initially and on change
+            calculateDuration();
+            startTimeInput.addEventListener('change', calculateDuration);
+            endTimeInput.addEventListener('change', calculateDuration);
+            
+            // Update range field values
+            const maxWalkingRange = document.getElementById('max_walking');
+            const maxWalkingValue = document.getElementById('max-walking-value');
+            
+            maxWalkingRange.addEventListener('input', function() {
+                const minutes = parseInt(this.value);
+                
+                // Affiche en minutes si <60, en heures si >=60
+                if (minutes < 60) {
+                    maxWalkingValue.textContent = minutes + ' min';
+                } else {
+                    const hours = Math.floor(minutes / 60);
+                    const remainingMinutes = minutes % 60;
+                    
+                    let displayText = hours + ' heure' + (hours > 1 ? 's' : '');
+                    if (remainingMinutes > 0) {
+                        displayText += ' et ' + remainingMinutes + ' min';
+                    }
+                    maxWalkingValue.textContent = displayText;
+                }
+            });
+
+            
+            // Transport mode validation - at least one must be selected
+            const transportCheckboxes = document.querySelectorAll('input[name="transport_modes"]');
+            
+            function validateTransportModes() {
+                const checkedModes = Array.from(transportCheckboxes).filter(cb => cb.checked);
+                const walkingOnly = checkedModes.length === 1 && checkedModes[0].value === "walking";
+                
+                if (checkedModes.length === 0) {
+                    // Force walking to be selected if nothing is selected
+                    transportCheckboxes[0].checked = true;
+                    M.toast({html: 'Au moins un mode de transport doit être sélectionné'});
+                    return false;
+                }
+                
+                if (walkingOnly) {
+                    M.toast({html: 'Vous ne pouvez pas sélectionner uniquement la marche. Veuillez choisir au moins un autre mode de transport.'});
+                    return false;
+                }
+                
+                return true;
+            }
+            
+            transportCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', validateTransportModes);
+            });
+            
+            // Show loading overlay on form submit with timeout
+            document.getElementById('optimize-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                 // Validate form first
+                 if (!validateTransportModes()) {
+                    return;
+                }
+                
+                // Check duration is reasonable (at least 2 hours)
+                const duration = parseInt(maxTimeInput.value);
+                if (duration < 120) {
+                    M.toast({html: 'La durée doit être d\'au moins 2 heures'});
+                    return;
+                }
+                
+                // Show loading overlay
+                document.getElementById('loading-overlay').style.display = 'flex';
+                
+                // Submit the form
+                this.submit();
+            
+                
+                // Add a safety timeout to redirect if optimization takes too long
+                setTimeout(function() {
+                    // If still on this page after 30 seconds, display error message
+                    if (document.getElementById('loading-overlay').style.display === 'flex') {
+                        M.toast({html: 'L\'optimisation prend plus de temps que prévu. Veuillez patienter...'});
+                        
+                        // After 60 seconds total, force redirect to avoid hanging
+                        setTimeout(function() {
+                            if (document.getElementById('loading-overlay').style.display === 'flex') {
+                                M.toast({html: 'Optimisation annulée. Veuillez réessayer avec moins de lieux.'});
+                                window.location.href = "{{ url_for('recommendations2') }}";
+                            }
+                        }, 30000);
+                    }
+                }, 30000);
+            });
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+            // Ajouter des délais d'animation pour chaque lien
+            document.querySelectorAll('.nav li').forEach((item, index) => {
+                item.style.setProperty('--i', index);
+            });
+            
+            // Animation spéciale au survol des liens
+            document.querySelectorAll('.nav li a').forEach(link => {
+                link.addEventListener('mouseenter', function() {
+                    this.style.animation = 'none';
+                    void this.offsetWidth; // Déclenche un reflow
+                    this.style.animation = 'linkHover 0.3s ease-out';
+                });
+            });
+        }); 
+    </script>
+</body>
+</html>

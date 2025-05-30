@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='recommendations.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='font-awesome-4.7.0/css/font-awesome.min.css') }}">
+    <title>BlediTrip - Plan de Voyage Personnalisé</title>
+    <style>
+        /* Navbar style */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 5%;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            margin-top: 0;
+            animation: navbarSlideDown 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+        }
+
+        /* Logo style */
+        .logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            font-size: 28px;
+            font-weight: 700;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        .logo-img {
+            height: 55px;
+        }
+
+        .logo .trip {
+            color: #2d7b39;
+        }
+
+        .logo:hover {
+            transform: scale(1.02);
+        }
+
+        /* Navigation left */
+        .nav {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-left: 2rem;
+            list-style: none;
+            padding: 0;
+            margin-top: 25px;
+        }
+
+        .nav li a {
+            color: #333;
+            text-decoration: none;
+            font-weight: bold;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            padding: 12px 15px;
+            border-radius: 50px;
+        }
+
+        .nav li a:hover{
+            background-color: #f0f0f0;
+            color: #2d7b39;
+            margin: 0 -8px;
+        }
+
+        /* Navigation right */
+        .compte {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* Language selector */
+        .browser-default {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            padding: 8px 32px 8px 12px;
+            border: 1px solid #2d7b39;
+            border-radius: 20px;
+            background-color: white;
+            color: #333;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.3s ease;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23399345'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .browser-default:hover {
+            border-color: #399345;
+            box-shadow: 0 0 0 1px #399345;
+        }
+
+        .browser-default:focus {
+            border-color: #399345;
+            box-shadow: 0 0 0 2px rgba(57, 147, 69, 0.3);
+        }
+
+        /* Profile button */
+        .profile-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 30px;
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #399345;
+            transition: all 0.3s ease;
+        }
+
+        .profile-btn:hover .avatar {
+            transform: scale(1.1);
+            border-color: #2d7b39;
+        }
+
+        .profile-btn:hover span {
+            color: #399345;
+        }
+
+        /* Mobile menu */
+        .menu-toggle {
+            display: none;
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 992px) {
+            header {
+                flex-wrap: wrap;
+                padding: 15px 5%;
+            }
+            
+            .nav, .compte {
+                display: none;
+                width: 100%;
+                flex-direction: column;
+                background-color: white;
+                margin-top: 15px;
+            }
+            
+            .nav.show, .compte.show {
+                display: flex;
+                gap: 0.5rem;
+            }
+            
+            .nav li, .compte li {
+                margin: 5px 0;
+                width: 100%;
+            }
+            
+            .nav li a {
+                display: block;
+                padding: 10px;
+                margin: 0;
+            }
+            
+            .menu-toggle {
+                display: block;
+            }
+            
+            .input-field {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+
+        /* Animation */
+        @keyframes navbarSlideDown {
+            0% {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            }
+
+        </style>
+        </head>
+        <body>
+        <header>
+        <a href="#" class="logo">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo BlediTrip" class="logo-img" style="height: 40px; vertical-align: middle;">
+            <span style="margin-left: 8px;">Bledi<span class="trip">Trip</span></span>
+        </a>
+        <ul class="nav">
+            <li><a href="{{ url_for('accueil') }}"> Accueil</a></li>
+            <li><a href="{{ url_for('recommendations') }}" class="active" id="recommendation-link">Recommandation</a></li>
+            <li><a href="{{ url_for('recommendations2') }}" class="active">Plan de voyage</a></li>
+            <li><a href="{{ url_for('favoris') }}">Mes interactions</a></li>
+        </ul>
+        <ul class="compte">
+            <div class="input-field">
+                <select class="browser-default">
+                    <option value="fr">Français</option>
+                </select>
+            </div>
+            <li>
+                <a href="{{ url_for('profil') }}" class="profile-btn">
+                    <img src="{{ url_for('static', filename='images/image (2).png') }}" alt="Profil" class="avatar">
+                    <span>{{ user.prenom }}</span>
+                </a>
+            </li>
+        </ul>
+        <div class="menu-toggle" id="menu-toggle"><i class="fa fa-bars"></i></div>
+        </header>
+    <main class="main-content">
+        <div class="welcome-section">
+            <h1>Créez votre itinéraire de voyage idéal</h1>
+            <p>Sélectionnez vos lieux préférés pour générer un parcours optimisé</p>
+            
+            {% if wilaya and not manual_selection %}
+            <div class="localisation-info">
+                <p>Découvrez les meilleurs sites de <strong>{{ wilaya }}</strong> en {{ saison|lower }}</p>
+            </div>
+            {% endif %}
+            
+            <div class="manual-selection-section">
+                <h3>Personnalisez votre recherche :</h3>
+                <form id="filter-form" method="GET" action="{{ url_for('recommendations2') }}">
+                    <div class="row">
+                        <div class="input-field col s12 m6">
+                            <select name="saison" id="saison-select">
+                                <option value="" disabled selected>Choisissez une saison</option>
+                                {% for s in saisons %}
+                                <option value="{{ s }}" {% if s == saison %}selected{% endif %}>{{ s }}</option>
+                                {% endfor %}
+                            </select>
+                            <label>Période de voyage</label>
+                        </div>
+                        <div class="input-field col s12 m6">
+                            <select name="wilaya" id="wilaya-select">
+                                <option value="" disabled selected>Choisissez une destination</option>
+                                {% for w in wilayas %}
+                                <option value="{{ w }}" {% if w == wilaya %}selected{% endif %}>{{ w }}</option>
+                                {% endfor %}
+                            </select>
+                            <label>Région</label>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn waves-effect green-btn">
+                        Recommender
+                    </button>
+                    {% if manual_selection %}
+                    <a href="{{ url_for('recommendations2') }}" class="btn waves-effect waves-light grey-btn">
+                        <i class="fa fa-times left"></i> Réinitialiser
+                    </a>
+                    {% endif %}
+                </form>
+            </div>
+            <div>
+                {% if recommender_type == "deep_learning" %}
+                <div class="recommender-badge deep-learning">
+                    <i class="fa fa-brain"></i> Suggestions intelligentes adaptées à votre profil
+                </div>
+                {% elif recommender_type == "content_based_fallback" %}
+                <div class="recommender-badge content-based">
+                    <i class="fa fa-tags"></i> Recommandations selon vos centres d'intérêt
+                </div>
+                {% elif recommender_type == "no_preferences" %}
+                <div class="recommender-badge no-preferences">
+                    <i class="fa fa-exclamation-circle"></i> Complétez votre profil pour des suggestions personnalisées
+                </div>
+                {% else %}
+                <div class="recommender-badge content-based">
+                    <i class="fa fa-tags"></i> Lieux correspondant à vos préférences
+                </div>
+                {% endif %}
+            </div>
+            
+            {% if manual_selection %}
+            <div class="filter-info">
+                <p>Résultats pour un voyage en <strong>{{ request.args.get('saison')|lower }}</strong> 
+                {% if request.args.get('wilaya') %}
+                à <strong>{{ request.args.get('wilaya') }}</strong>
+                {% endif %}
+                </p>
+            </div>
+            {% endif %}
+            
+            <div class="selection-mode-toggle">
+                <label>
+                    <input type="checkbox" id="selection-mode-toggle" checked>
+                </label>
+                <p class="helper-text">Cochez/décochez les cases pour inclure/exclure des lieux de votre itinéraire</p>
+            </div>
+    </div>
+    <div class="lieux-grid">
+        {% if lieux_data %}
+            {% for lieu in lieux_data %}
+            <div class="destination-block selected" data-lieu-id="{{ lieu.lieu_id }}">
+                <div class="place-checkbox">
+                    <input type="checkbox" id="place-{{ lieu.lieu_id }}" class="place-select" value="{{ lieu.lieu_id }}" checked>
+                    <label for="place-{{ lieu.lieu_id }}"><i class="fa fa-check"></i></label>
+                </div>
+                <img src="{{ lieu.image_drive_url }}" alt="{{ lieu.name }}" class="destination-image-flat">
+                <div class="destination-text">
+                    <p class="destination-location">
+                        {% if lieu.address %}
+                        <a href="{{ lieu.address }}" target="_blank" class="gps-link">
+                            <i class="fa fa-map-marker" aria-hidden="true"></i>
+                        </a>
+                        {% endif %}
+                        <span>{{ lieu.wilaya }}, {{ lieu.commune }}</span>
+                    </p>
+                    <h3 class="destination-title">{{ lieu.name }}</h3>
+                    <div class="destination-meta">
+                        <span class="destination-category">{{ lieu.category }}</span>
+                        {% if lieu.subcategory %}
+                        <span class="destination-subcategory">{{ lieu.subcategory }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="star-rating" data-lieu-id="{{ lieu.lieu_id }}">
+                        {% for i in range(1, 6) %}
+                          <i class="fa fa-star-o star" data-value="{{ i }}"></i>
+                        {% endfor %}
+                    </div>
+                    <div class="destination-action">
+                        <span class="destination-price">
+                            {% if lieu.entry_fee %}
+                                {{ lieu.entry_fee|replace("da", "")|trim }} DA
+                            {% else %}
+                                Gratuit
+                            {% endif %}
+                        </span>
+                        <a href="{{ url_for('details_lieu', lieu_id=lieu.lieu_id) }}" class="destination-link">
+                            En savoir plus <i class="fa fa-chevron-right" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="no-recommendations">
+                <p>Aucune suggestion disponible pour ces critères. Essayez d'autres options.</p>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="selection-controls">
+        <div class="selection-info">
+            <span class="selection-counter">10</span> destinations choisies
+        </div>
+        <div class="selection-actions">
+            <button class="btn waves-effect waves-light red lighten-2" id="cancel-selection">
+                <i class="fa fa-times left"></i> Tout annuler
+            </button>
+            <form id="itinerary-form" action="{{ url_for('generate_itinerary') }}" method="POST">
+                <input type="hidden" name="selected_places" id="selected-places-input">
+                <button type="submit" class="btn waves-effect waves-light green pulse" id="generate-itinerary">
+                    <i class="fa fa-route left"></i> Créer mon itinéraire
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="toast-container" id="toast-container"></div>
+</main>
+
+<script>
+    // Script spécifique pour le header seulement
+        document.addEventListener('DOMContentLoaded', function() {
+            // Menu toggle pour mobile
+            const menuToggle = document.getElementById('menu-toggle');
+            const nav = document.querySelector('.nav');
+            const compte = document.querySelector('.compte');
+            
+            menuToggle.addEventListener('click', function() {
+                nav.classList.toggle('show');
+                compte.classList.toggle('show');
+            });
+            
+            // Gestion du lien de recommandation
+            var recommandationLink = document.getElementById('recommendation-link');
+            if (recommandationLink) {
+                recommandationLink.addEventListener('click', function(event) {
+                    alert("Veuillez patienter, nous préparons vos recommandations...");
+                });
+            }
+            
+            // Initialiser le select Materialize
+            var elems = document.querySelectorAll('select');
+            M.FormSelect.init(elems);
+            
+            // Gérer le filtrage
+            document.getElementById('filter-button').addEventListener('click', function() {
+                var wilaya = document.getElementById('wilaya-select').value;
+                if (wilaya) {
+                    window.location.href = '/accueil?wilaya=' + encodeURIComponent(wilaya);
+                }
+            });
+    });     
+        
+    // Initialiser les selects materialize
+    document.addEventListener('DOMContentLoaded', function() {
+    // Initialisation des éléments Materialize
+    var saisonSelect = document.getElementById('saison-select');
+    var wilayaSelect = document.getElementById('wilaya-select');
+    M.FormSelect.init(saisonSelect);
+    M.FormSelect.init(wilayaSelect);
+    
+    // Éléments du mode sélection
+    const selectionModeToggle = document.getElementById('selection-mode-toggle');
+    const placeCheckboxes = document.querySelectorAll('.place-checkbox');
+    const selectionControls = document.querySelector('.selection-controls');
+    const selectedPlacesInput = document.getElementById('selected-places-input');
+    const selectionCounter = document.querySelector('.selection-counter');
+    const cancelSelectionBtn = document.getElementById('cancel-selection');
+    const generateItineraryBtn = document.getElementById('generate-itinerary');
+    
+    // Activer le mode sélection par défaut
+    selectionModeToggle.checked = true;
+    selectionControls.classList.add('active');
+    
+    // Sélectionner toutes les cases à cocher au chargement
+    const allCheckboxes = document.querySelectorAll('.place-select');
+    allCheckboxes.forEach(checkbox => {
+        checkbox.checked = true;
+    });
+    
+    // Calculer le nombre initial de lieux sélectionnés
+    const initialSelectedCount = allCheckboxes.length;
+    selectionCounter.textContent = initialSelectedCount;
+    
+    // Mettre à jour l'input caché avec tous les IDs au départ
+    const allPlaceIds = Array.from(allCheckboxes).map(checkbox => checkbox.value);
+    selectedPlacesInput.value = allPlaceIds.join(',');
+    
+    // Gestion du changement de sélection
+    allCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const placeBlock = this.closest('.destination-block');
+            placeBlock.classList.toggle('selected', this.checked);
+            updateSelectedCounter();
+        });
+    });
+    
+    // Fonction pour mettre à jour le compteur
+    function updateSelectedCounter() {
+        const selectedCount = document.querySelectorAll('.place-select:checked').length;
+        selectionCounter.textContent = selectedCount;
+        
+        // Mettre à jour l'input caché
+        const selectedPlaces = Array.from(document.querySelectorAll('.place-select:checked'))
+            .map(checkbox => checkbox.value);
+        selectedPlacesInput.value = selectedPlaces.join(',');
+        
+        // Activer/désactiver le bouton Générer
+        generateItineraryBtn.disabled = selectedCount < 2;
+        if (selectedCount < 2) {
+            generateItineraryBtn.classList.add('disabled');
+        } else {
+            generateItineraryBtn.classList.remove('disabled');
+        }
+    }
+    
+    // Annuler la sélection
+    // Remplacer la partie "Annuler la sélection" par ce code :
+    cancelSelectionBtn.addEventListener('click', function() {
+        // Décocher toutes les cases
+        allCheckboxes.forEach(checkbox => {
+            checkbox.checked = false;
+            const placeBlock = checkbox.closest('.destination-block');
+            if (placeBlock) placeBlock.classList.remove('selected');
+        });
+        
+        // Mettre à jour le compteur
+        updateSelectedCounter();
+        
+        // Le mode sélection reste actif pour permettre une nouvelle sélection
+        selectionModeToggle.checked = true;
+        selectionControls.classList.add('active');
+        placeCheckboxes.forEach(checkbox => {
+            checkbox.style.display = 'block';
+        });
+        
+        // Feedback visuel discret (optionnel)
+        selectionCounter.textContent = '0';
+        generateItineraryBtn.classList.add('disabled');
+    });
+    // Validation du formulaire
+    document.getElementById('itinerary-form').addEventListener('submit', function(e) {
+        const selectedCount = document.querySelectorAll('.place-select:checked').length;
+        
+        if (selectedCount < 2) {
+            e.preventDefault();
+            showToast('Sélectionnez au moins 2 destinations pour créer un itinéraire', 'error');
+            return false;
+        }
+        
+        if (selectedCount > 10) {
+            e.preventDefault();
+            showToast('Pour une expérience optimale, limitez votre sélection à 10 lieux', 'error');
+            return false;
+        }
+        
+        return true;
+    });
+    
+    // Fonction pour afficher les notifications
+    function showToast(message, type = 'default') {
+        const toastContainer = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        
+        let icon = 'info-circle';
+        if (type === 'success') icon = 'check-circle';
+        if (type === 'error') icon = 'exclamation-circle';
+        
+        toast.innerHTML = `<i class="fa fa-${icon}"></i> ${message}`;
+        toastContainer.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+                toastContainer.removeChild(toast);
+            }, 300);
+        }, 3000);
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Ajouter des délais d'animation pour chaque lien
+            document.querySelectorAll('.nav li').forEach((item, index) => {
+                item.style.setProperty('--i', index);
+            });
+            
+            // Animation spéciale au survol des liens
+            document.querySelectorAll('.nav li a').forEach(link => {
+                link.addEventListener('mouseenter', function() {
+                    this.style.animation = 'none';
+                    void this.offsetWidth; // Déclenche un reflow
+                    this.style.animation = 'linkHover 0.3s ease-out';
+                });
+            });
+}); 
+
+</script>
+<script src="{{ url_for('static', filename='projet2.js') }}"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</body>
+</html>
