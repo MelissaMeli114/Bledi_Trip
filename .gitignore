@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.env
+*.db
+*.sqlite3
+*.json
+*.bson
+*.zip
+*.mp4
+*.avi
+*.mov
