@@ -15,7 +15,7 @@ import folium
 # Class for content-based recommendation
 class ContentBasedRecommender:
     def __init__(self):
-        self.client = MongoClient("mongodb://localhost:27017/")
+        self.client = MongoClient("mongodb+srv://Melissa:Melissa@cluster0.dmascbk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
         self.db = self.client["Algeria"]
         self.users = self.db["user_preferences"]
         self.lieux = self.db["lieux"]
@@ -132,7 +132,7 @@ app = Flask(__name__)
 app.secret_key = '3ed235a79bbc94d041fdef6f13146e1d'
 
 # Connexion à MongoDB
-client = MongoClient("mongodb://localhost:27017/")
+client = MongoClient("mongodb+srv://Melissa:Melissa@cluster0.dmascbk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
 db = client['Algeria']
 users_collection = db['users']
 lieux_collection = db['lieux']

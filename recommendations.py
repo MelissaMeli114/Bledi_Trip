@@ -19,7 +19,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 import warnings
 
 class AlgeriaTourismRecommender:
-    def __init__(self, mongo_uri="mongodb://localhost:27017/", db_name="Algeria", model_path="tourism_recommender_complete2.pkl"):
+    def __init__(self, mongo_uri="mongodb+srv://Melissa:Melissa@cluster0.dmascbk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0", db_name="Algeria", model_path="tourism_recommender_complete2.pkl"):
         # Configuration initiale
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.client = MongoClient(mongo_uri)
