@@ -32,7 +32,7 @@ class AlgeriaTourismRecommender1:
     DEFAULT_WILAYA = "Alger"
     DEFAULT_LATENT_DIM = 64
     
-    def __init__(self, mongo_uri='mongodb://localhost:27017/', 
+    def __init__(self, mongo_uri='mongodb+srv://Melissa:Melissa@cluster0.dmascbk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', 
                  db_name="Algeria", model_path="tourism_recommender_complete2.pkl"):
         """
         Initialise le système de recommandation.
