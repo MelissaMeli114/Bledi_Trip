@@ -208,6 +208,43 @@
                        opacity: 1;
                    }
                    }
+
+            /* Ajoutez ceci dans votre section style */
+            .detail-item {
+                margin-bottom: 15px;
+                display: flex;
+                align-items: flex-start;
+                animation: fadeInUp 0.5s ease-out forwards;
+                animation-delay: calc(var(--order) * 0.1s);
+                opacity: 0;
+            }
+            
+            .detail-icon {
+                margin-right: 10px;
+                color: #2d7b39;
+                min-width: 20px;
+                text-align: center;
+            }
+            
+            .detail-label {
+                font-weight: bold;
+                margin-right: 5px;
+            }
+            
+            .detail-value {
+                flex: 1;
+            }
+            
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
    
        </style>
        </head>
@@ -288,7 +325,26 @@
                         </div>
                     </div>
                     {% endif %}
-                    
+                    <!-- Horaires d'ouverture -->
+                    {% if lieu.opening_days or lieu.formatted_hours %}
+                    <div class="detail-item">
+                        <span class="detail-icon"><i class="fa fa-clock-o"></i></span>
+                        <span class="detail-label">Horaires :</span>
+                        <span class="detail-value">
+                            {% if lieu.opening_days %}
+                                Ouvert les {{ lieu.opening_days }}
+                                {% if lieu.formatted_hours %}
+                                    de {{ lieu.formatted_hours }}
+                                {% endif %}
+                            {% else %}
+                                {% if lieu.formatted_hours %}
+                                    Ouvert de {{ lieu.formatted_hours }}
+                                {% endif %}
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% endif %}
+
                     <div class="detail-item">
                         <span class="detail-icon"><i class="fa fa-book"></i></span>
                         <span class="detail-label">Histoire :</span>

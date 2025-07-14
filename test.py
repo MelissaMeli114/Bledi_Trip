@@ -1,23 +1,27 @@
-from flask import Flask
-from pymongo import MongoClient
+import pkg_resources
+import os
 
-app = Flask(__name__)
+def get_size(path):
+    total = 0
+    for dirpath, dirnames, filenames in os.walk(path):
+        for f in filenames:
+            fp = os.path.join(dirpath, f)
+            if os.path.isfile(fp):
+                total += os.path.getsize(fp)
+    return total
 
-# Remplace par ton URI MongoDB Atlas
-MONGO_URI = "mongodb://localhost:27017/"
-client = MongoClient(MONGO_URI)
+site_packages = pkg_resources.get_distribution('pip').location
+packages = {dist.project_name: dist.location for dist in pkg_resources.working_set}
 
-# Remplace 'testdb' par le nom de ta base
-db = client["Algeria"]
+sizes = []
+for package, path in packages.items():
+    size_bytes = get_size(os.path.join(path, package))
+    size_mb = round(size_bytes / (1024 * 1024), 2)
+    sizes.append((package, size_mb))
 
-@app.route("/")
-def home():
-    try:
-        # Essaye de lire une collection
-        data = db["lieux"].find_one()  # test_collection peut être vide
-        return f"Connexion MongoDB réussie ! Donnée : {data}"
-    except Exception as e:
-        return f"Erreur de connexion : {e}"
+# Trier par taille décroissante
+sizes.sort(key=lambda x: x[1], reverse=True)
 
-if __name__ == "__main__":
-    app.run(debug=True)
+# Afficher les plus gros packages
+for name, size in sizes:
+    print(f"{name:<30}: {size} MB")
