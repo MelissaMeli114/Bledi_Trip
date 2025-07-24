@@ -12,6 +12,15 @@ from datetime import date
 import os
 import folium
 
+
+import psutil
+import os
+
+def print_memory_usage(note=""):
+    process = psutil.Process(os.getpid())
+    mem_info = process.memory_info()
+    print(f"[{note}] Memory used: {mem_info.rss / (1024 * 1024):.2f} MB")
+
 # Class for content-based recommendation
 class ContentBasedRecommender:
     def __init__(self):
@@ -1869,5 +1878,9 @@ def sansauthentification():
                              wilayas=wilayas,
                              current_wilaya=current_wilaya)
 
+
+print_memory_usage("After model loading")
+print_memory_usage("After routes defined")
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)
