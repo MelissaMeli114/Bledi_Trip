@@ -11,10 +11,7 @@ import geocoder
 from datetime import date
 import os
 import folium
-
-
 import psutil
-import os
 
 def print_memory_usage(note=""):
     process = psutil.Process(os.getpid())
@@ -1883,4 +1880,5 @@ print_memory_usage("After model loading")
 print_memory_usage("After routes defined")
 
 if __name__ == "__main__":
-    app.run(debug=False)
+    port = int(os.environ.get("PORT", 5000))  # Render définit la variable PORT automatiquement
+    app.run(host="0.0.0.0", port=port, debug=False)
