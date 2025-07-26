@@ -1763,117 +1763,72 @@ def get_average_rating(place_id):
     total = sum(r['rating'] for r in ratings)
     return round(total / len(ratings), 1)
 
+@app.route('/set-location', methods=['POST'])
+def set_location():
+    data = request.get_json()
+    lat = data.get('lat')
+    lon = data.get('lon')
+
+    import reverse_geocoder as rg
+    result = rg.search((lat, lon))
+    wilaya = result[0]['admin1']
+
+    session['latitude'] = lat
+    session['longitude'] = lon
+    session['wilaya'] = wilaya
+
+    return jsonify({"status": "ok", "wilaya": wilaya})
+
+
 @app.route('/sansauthentification')
 def sansauthentification():
-    """Page à propos accessible sans authentification"""
-    # Récupérer toutes les wilayas disponibles
     wilayas = lieux_collection.distinct("wilaya")
-    wilayas.sort()  # Trier par ordre alphabétique
-    
-    # Récupérer la wilaya sélectionnée (soit par paramètre, soit par géolocalisation)
-    selected_wilaya = request.args.get('wilaya')
-    
-    try:
-        g = geocoder.ip('me')
-        latitude, longitude = g.latlng
-        
-        # Reverse geocoding pour obtenir la wilaya
-        geolocator = Nominatim(user_agent="bleditrip_app")
-        location = geolocator.reverse((latitude, longitude), language='fr')
-        
-        detected_wilaya = None
-        commune = None
-        if location and 'address' in location.raw:
-            address = location.raw['address']
-            detected_wilaya = address.get('state') or address.get('county') or address.get('region')
-            commune = address.get('town') or address.get('village') or address.get('city')
-        
-        # Déterminer la wilaya à utiliser (priorité au filtre sélectionné)
-        current_wilaya = selected_wilaya or detected_wilaya
-        
-        # Récupérer les lieux selon la wilaya choisie
-        lieux_data = []
-        if current_wilaya:
-            query = {"wilaya": {"$regex": f"^{current_wilaya}$", "$options": "i"}}
-            lieux = lieux_collection.find(query)
-            
-            for lieu in lieux:
-                # Initialisation avec l'image par défaut
-                image_drive_url = url_for('static', filename='images/placeholder.jpg')
-                # Gestion sécurisée des images comme dans recommended_places
-                if 'images' in lieu and lieu['images']:
-                    try:
-                        # Gère à la fois les chaînes et les listes d'images
-                        image_url = lieu['images'][0] if isinstance(lieu['images'], list) else lieu['images']
-                        
-                        if isinstance(image_url, str) and 'id=' in image_url:
-                            image_id = image_url.split('id=')[-1].split('&')[0]  # Plus sécurisé
-                            image_drive_url = url_for('drive_image', file_id=image_id)
-                    except Exception as e:
-                        print(f"Erreur image pour lieu {lieu.get('_id', 'inconnu')}: {str(e)}")
-                        # L'image par défaut est déjà définie
+    wilayas.sort()
 
-                # Le reste du code reste inchangé
-                lieux_data.append({
-                    "lieu_id": str(lieu['_id']),
-                    "nom": lieu.get('name', 'Lieu inconnu'),
-                    "wilaya": lieu.get('wilaya', 'Wilaya inconnue'),
-                    "commune": lieu.get('commune', 'Commune inconnue'),
-                    "category": lieu.get('category', 'Non catégorisé'),
-                    "subcategory": lieu.get('subcategory', ''),
-                    "entry_fee": lieu.get('entry_fee', ""),
-                    "address": lieu.get('address', ""),
-                    "image_drive_url": image_drive_url,
-                    "position": (latitude, longitude),
-                    "wilaya_detectee": detected_wilaya
-                })
-        
-        return render_template('sansauthentification.html', 
-                             lieux_data=lieux_data,
-                             position=(latitude, longitude),
-                             wilaya=current_wilaya,
-                             wilayas=wilayas,
-                             current_wilaya=current_wilaya)
-    
-    except Exception as e:
-        print(f"Erreur de géolocalisation: {str(e)}")
-        # Fallback sans géolocalisation
-        current_wilaya = selected_wilaya
-        lieux_data = []
-        
-        query = {}
-        if current_wilaya:
-            query = {"wilaya": {"$regex": f"^{current_wilaya}$", "$options": "i"}}
-        
-        lieux = lieux_collection.find(query).limit(20)
-        
+    selected_wilaya = request.args.get('wilaya')
+    detected_wilaya = session.get('wilaya')
+    latitude = session.get('latitude')
+    longitude = session.get('longitude')
+
+    current_wilaya = selected_wilaya or detected_wilaya
+    lieux_data = []
+
+    if current_wilaya:
+        query = {"wilaya": {"$regex": f"^{current_wilaya}$", "$options": "i"}}
+        lieux = lieux_collection.find(query)
+
         for lieu in lieux:
-            if 'images' in lieu:
-                image_url = lieu['images']
-                image_id = image_url.split('id=')[-1]
-                image_drive_url = url_for('drive_image', file_id=image_id)
-            else:
-                image_drive_url = url_for('static', filename='images/placeholder.jpg')
+            image_drive_url = url_for('static', filename='images/placeholder.jpg')
+            if 'images' in lieu and lieu['images']:
+                try:
+                    image_url = lieu['images'][0] if isinstance(lieu['images'], list) else lieu['images']
+                    if 'id=' in image_url:
+                        image_id = image_url.split('id=')[-1].split('&')[0]
+                        image_drive_url = url_for('drive_image', file_id=image_id)
+                except Exception as e:
+                    print(f"Erreur image : {e}")
 
             lieux_data.append({
                 "lieu_id": str(lieu['_id']),
                 "nom": lieu.get('name', 'Lieu inconnu'),
-                "wilaya": lieu.get('wilaya', 'Wilaya inconnue'),
-                "commune": lieu.get('commune', 'Commune inconnue'),
-                "category": lieu.get('category', 'Non catégorisé'),
-                "subcategory": lieu.get('subcategory', ''),
-                "entry_fee": lieu.get('entry_fee', ""),
-                "address": lieu.get('address', ""),
+                "wilaya": lieu.get('wilaya'),
+                "commune": lieu.get('commune'),
+                "category": lieu.get('category'),
+                "subcategory": lieu.get('subcategory'),
+                "entry_fee": lieu.get('entry_fee'),
+                "address": lieu.get('address'),
                 "image_drive_url": image_drive_url,
-                "wilaya_detectee": None
+                "position": (latitude, longitude),
+                "wilaya_detectee": detected_wilaya
             })
-        
-        return render_template('sansauthentification.html',
-                             lieux_data=lieux_data,
-                             position=None,
-                             wilaya=current_wilaya,
-                             wilayas=wilayas,
-                             current_wilaya=current_wilaya)
+
+    return render_template('sansauthentification.html',
+                           lieux_data=lieux_data,
+                           position=(latitude, longitude),
+                           wilaya=current_wilaya,
+                           wilayas=wilayas,
+                           current_wilaya=current_wilaya)
+
 
 
 print_memory_usage("After model loading")

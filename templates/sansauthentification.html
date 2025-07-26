@@ -151,6 +151,43 @@
                     });
                 });
             });    
+
+            document.addEventListener("DOMContentLoaded", function () {
+            // Vérifier si la géolocalisation est supportée
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    function (position) {
+                        // Coordonées GPS
+                        const latitude = position.coords.latitude;
+                        const longitude = position.coords.longitude;
+
+                        // Envoyer au backend
+                        fetch("/set-location", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({
+                                lat: latitude,
+                                lon: longitude
+                            })
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            console.log("Localisation enregistrée :", data);
+                            // Recharger la page pour appliquer la bonne wilaya si nécessaire
+                            window.location.reload();
+                        })
+                        .catch(err => console.error("Erreur d'envoi localisation :", err));
+                    },
+                    function (error) {
+                        console.warn("Géolocalisation refusée :", error.message);
+                    }
+                );
+            } else {
+                console.warn("La géolocalisation n'est pas supportée par ce navigateur.");
+            }
+        });
         </script>
 
         <script src="{{ url_for('static', filename='projet.js') }}"></script>
