@@ -32,9 +32,9 @@
           <!-- Afficher la localisation -->
     <main class="main-content">
         <div class="welcome-section">
-            {% if position and wilaya %}
+            {% if current_wilaya %}
             <div class="localisation-info">
-                <p>Découvrez les lieux intéressants dans <strong>{{ wilaya }}</strong></p>
+                <p>Découvrez les lieux intéressants dans <strong>{{ current_wilaya }}</strong></p>
             </div>
             {% endif %}
             <div class="manual-selection-section">
@@ -44,7 +44,7 @@
                         <select name="wilaya" id="wilaya-select">
                             <option value="" disabled selected>Choisissez une wilaya</option>
                             {% for w in wilayas %}
-                            <option value="{{ w }}" {% if w==wilaya %}selected{% endif %}>{{ w }}</option>
+                            <option value="{{ w }}" {% if w == current_wilaya %}selected{% endif %}>{{ w }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -103,89 +103,103 @@
         </div>
              
     </main>
-        <script>
-            // Script spécifique pour le header seulement
-            document.addEventListener('DOMContentLoaded', function() {
-                // Menu toggle pour mobile
-                const menuToggle = document.getElementById('menu-toggle');
-                const nav = document.querySelector('.nav');
-                const compte = document.querySelector('.compte');
-                
-                menuToggle.addEventListener('click', function() {
-                    nav.classList.toggle('show');
-                    compte.classList.toggle('show');
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 1. Menu toggle pour mobile
+            const menuToggle = document.getElementById('menu-toggle');
+            const nav = document.querySelector('.nav');
+            const compte = document.querySelector('.compte');
+            
+            menuToggle.addEventListener('click', function() {
+                nav.classList.toggle('show');
+                compte.classList.toggle('show');
+            });
+
+            // 2. Gestion du lien de recommandation
+            var recommandationLink = document.getElementById('recommendation-link');
+            if (recommandationLink) {
+                recommandationLink.addEventListener('click', function(event) {
+                    alert("Veuillez patienter, nous préparons vos recommandations...");
                 });
-                
-                // Gestion du lien de recommandation
-                var recommandationLink = document.getElementById('recommendation-link');
-                if (recommandationLink) {
-                    recommandationLink.addEventListener('click', function(event) {
-                        alert("Veuillez patienter, nous préparons vos recommandations...");
-                    });
+            }
+
+            // 3. Animations des liens de navigation
+            document.querySelectorAll('.nav li').forEach((item, index) => {
+                item.style.setProperty('--i', index);
+            });
+            
+            document.querySelectorAll('.nav li a').forEach(link => {
+                link.addEventListener('mouseenter', function() {
+                    this.style.animation = 'none';
+                    void this.offsetWidth; // Déclenche un reflow
+                    this.style.animation = 'linkHover 0.3s ease-out';
+                });
+            });
+
+            // 4. Initialisation des composants Materialize
+            var elems = document.querySelectorAll('select');
+            M.FormSelect.init(elems);
+            
+            var tooltips = document.querySelectorAll('.tooltipped');
+            M.Tooltip.init(tooltips);
+
+            // 5. Gestion du filtrage par wilaya
+            document.getElementById('filter-button').addEventListener('click', function() {
+                var wilaya = document.getElementById('wilaya-select').value;
+                if (wilaya) {
+                    sessionStorage.removeItem('locationDetected');
+                    window.location.href = '/sansauthentification?wilaya=' + encodeURIComponent(wilaya);
                 }
-                
-                // Initialiser le select Materialize
-                var elems = document.querySelectorAll('select');
-                M.FormSelect.init(elems);
-                
-                // Gérer le filtrage
-                document.getElementById('filter-button').addEventListener('click', function() {
-                    var wilaya = document.getElementById('wilaya-select').value;
-                    if (wilaya) {
-                        window.location.href = '/sansauthentification?wilaya=' + encodeURIComponent(wilaya);
-                    }
-                });
-            });  
-            document.addEventListener('DOMContentLoaded', function() {
-                // Ajouter des délais d'animation pour chaque lien
-                document.querySelectorAll('.nav li').forEach((item, index) => {
-                    item.style.setProperty('--i', index);
-                });
-                
-                // Animation spéciale au survol des liens
-                document.querySelectorAll('.nav li a').forEach(link => {
-                    link.addEventListener('mouseenter', function() {
-                        this.style.animation = 'none';
-                        void this.offsetWidth; // Déclenche un reflow
-                        this.style.animation = 'linkHover 0.3s ease-out';
-                    });
-                });
-            });    
+            });
 
-            document.addEventListener("DOMContentLoaded", function () {
-            // Vérifier si la géolocalisation est supportée
-            if ("geolocation" in navigator) {
-                navigator.geolocation.getCurrentPosition(
-                    function (position) {
-                        // Coordonées GPS
-                        const latitude = position.coords.latitude;
-                        const longitude = position.coords.longitude;
+            // 6. Détection automatique de la localisation
+            const urlParams = new URLSearchParams(window.location.search);
+            if (!urlParams.has('wilaya') && !sessionStorage.getItem('locationDetected')) {
+                detecterLocalisation();
+            }
 
-                        // Envoyer au backend
-                        fetch("/set-location", {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json"
-                            },
-                            body: JSON.stringify({
-                                lat: latitude,
-                                lon: longitude
+            function detecterLocalisation() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        function(position) {
+                            const lat = position.coords.latitude;
+                            const lng = position.coords.longitude;
+                            
+                            // Envoyer les coordonnées au serveur
+                            fetch("/set-location", {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json"
+                                },
+                                body: JSON.stringify({
+                                    lat: lat,
+                                    lon: lng
+                                })
                             })
-                        })
-                        .then(res => res.json())
-                        .then(data => {
-                            console.log("Localisation enregistrée :", data);
-                            // Recharger la page pour appliquer la bonne wilaya si nécessaire
-                            window.location.reload();
-                        })
-                        .catch(err => console.error("Erreur d'envoi localisation :", err));
-                    },
-                    function (error) {
-                        console.warn("Géolocalisation refusée :", error.message);
-                    }
-                );
-            } else {
-                console.warn("La géolocalisation n'est pas supportée par ce navigateur.");
+                            .then(() => {
+                                // Détecter la wilaya après enregistrement des coordonnées
+                                return fetch(`/detect_wilaya?lat=${lat}&lon=${lng}`);
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.wilaya) {
+                                    sessionStorage.setItem('locationDetected', 'true');
+                                    window.location.href = `/sansauthentification?wilaya=${encodeURIComponent(data.wilaya)}`;
+                                }
+                            });
+                        },
+                        function(error) {
+                            console.log("Géolocalisation refusée ou erreur:", error.message);
+                        },
+                        {
+                            enableHighAccuracy: true,
+                            timeout: 10000,
+                            maximumAge: 0
+                        }
+                    );
+                } else {
+                    console.warn("La géolocalisation n'est pas supportée par ce navigateur.");
+                }
             }
         });
         </script>

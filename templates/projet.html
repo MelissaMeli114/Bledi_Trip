@@ -253,6 +253,42 @@
             $(document).ready(function(){
                 $('.carousel').carousel();
             });
+
+            document.addEventListener('DOMContentLoaded', function() {
+            // Intercepter les clics sur "Voir plus"
+            document.querySelectorAll('.button a[href*="sansauthentification"]').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    detecterEtRediriger();
+                });
+            });
+
+            function detecterEtRediriger() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        position => {
+                            const lat = position.coords.latitude;
+                            const lng = position.coords.longitude;
+                            
+                            fetch(`/detect_wilaya?lat=${lat}&lon=${lng}`)
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.wilaya) {
+                                        window.location.href = `/sansauthentification?wilaya=${encodeURIComponent(data.wilaya)}`;
+                                    } else {
+                                        window.location.href = '/sansauthentification';
+                                    }
+                                });
+                        },
+                        () => {
+                            window.location.href = '/sansauthentification';
+                        }
+                    );
+                } else {
+                    window.location.href = '/sansauthentification';
+                }
+            }
+        });
       
             
         </script>
